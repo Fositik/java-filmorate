@@ -12,12 +12,21 @@ target/
 .settings
 .springBeans
 .sts4-cache
+lombok.config
+suppressions.xml
 
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+*.xml
+*.cmd
+*.config
+*.jar
+*.class
+*.DS_Store
+.mvn
 
 ### NetBeans ###
 /nbproject/private/
@@ -32,12 +41,3 @@ build/
 ### VS Code ###
 .vscode/
 
-*.xml
-*.cmd
-*.config
-*.jar
-*.class
-*.DS_Store
-.mvn
-lombok.config
-suppressions.xml
