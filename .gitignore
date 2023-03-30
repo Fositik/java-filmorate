@@ -1,15 +1,4 @@
-*.class
-*.log
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-.xml
-hs_err_pid*
-out/
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -29,10 +18,6 @@ target/
 *.iws
 *.iml
 *.ipr
-suppressions.xml
-checkstyle.xml
-lombok.config
-.mvn
 
 ### NetBeans ###
 /nbproject/private/
@@ -46,6 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-*.db
-db/*
