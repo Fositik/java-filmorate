@@ -26,6 +26,7 @@ public class FilmController {
 
     /**
      * Добавляет новый фильм
+     *
      * @param film объект Film {@link Film}, который содержит данные фильма
      * @return возвращает объект ResponseEntity<Film> с кодом состояния HTTP 201 CREATED и добавленным фильмом в теле ответа.
      */
@@ -40,6 +41,7 @@ public class FilmController {
 
     /**
      * Обновляет данные фильма
+     *
      * @param updatedFilm объект Film {@link Film}, который содержит данные обновленного фильма
      * @return объект ResponseEntity, содержащий обновленный фильм и статус ответа HTTP 200 OK
      * @throws ValidationException если форма обновления фильма заполнена неправильно или фильм с указанным id не найден
@@ -64,6 +66,7 @@ public class FilmController {
 
     /**
      * Возвращает список всех фильмов
+     *
      * @return объект ResponseEntity, содержащий список List фильмов
      */
     @GetMapping
@@ -78,7 +81,8 @@ public class FilmController {
      * - Описание фильма не может быть пустым и не может превышать 200 символов.
      * - Дата релиза фильма не может быть раньше 28 декабря 1895 года.
      * - Продолжительность фильма должна быть положительной.
-     * @param film объект Film {@link Film}, который содержит данные проверяемого на соответствие условиям фильма
+     *
+     * @param film    объект Film {@link Film}, который содержит данные проверяемого на соответствие условиям фильма
      * @param message сообщение об ошибке, если объект не соответствует условиям
      */
     protected void validate(Film film, String message) {
