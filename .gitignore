@@ -28,7 +28,9 @@ target/
 *.iws
 *.iml
 *.ipr
-
+suppressions.xml
+checkstyle.xml
+lombok.config
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
