@@ -7,7 +7,7 @@
 *.zip
 *.tar.gz
 *.rar
-*.xml
+.xml
 hs_err_pid*
 out/
 target/
