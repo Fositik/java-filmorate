@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -26,7 +27,7 @@ public class FilmController {
     /**
      * Добавляет новый фильм
      * @param film объект Film {@link Film}, который содержит данные фильма
-     * @return возвращает объект ResponseEntity<Film> с кодом состояния HTTP 200 OK и добавленным фильмом в теле ответа.
+     * @return возвращает объект ResponseEntity<Film> с кодом состояния HTTP 201 CREATED и добавленным фильмом в теле ответа.
      */
     @PostMapping  //@PostMapping указывает, что этот метод обрабатывает HTTP POST-запросы
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
@@ -34,7 +35,7 @@ public class FilmController {
         log.info("Добавление фильма: {}", film);
         film.setId(films.size() + 1);
         films.add(film);
-        return ResponseEntity.ok(film);
+        return ResponseEntity.status(HttpStatus.CREATED).body(film);
     }
 
     /**

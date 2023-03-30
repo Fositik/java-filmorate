@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.*;
@@ -26,6 +27,11 @@ public class UserController {
             "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
     );
 
+    /**
+     * Добавляет нового пользователя
+     * @param newUser объект User {@link User}, который содержит данные пользователя
+     * @return возвращает объект ResponseEntity<User> с кодом состояния HTTP 201 CREATED и добавленным пользователем в теле ответа.
+     */
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User newUser) {
         log.info("Создание пользователя: {}", newUser);
