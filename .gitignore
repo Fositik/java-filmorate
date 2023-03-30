@@ -39,3 +39,8 @@ build/
 *.class
 *.DS_Store
 *.yml
+mvnw
+mvnw.cmd
+.mvn
+lombok.config
+suppressions.xml
