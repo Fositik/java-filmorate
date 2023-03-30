@@ -12,6 +12,10 @@ target/
 .settings
 .springBeans
 .sts4-cache
+mvnw.cmd
+mvnw
+lombok.config
+suppressions.xml
 
 ### IntelliJ IDEA ###
 .idea
