@@ -83,12 +83,12 @@ public class FilmController {
      */
     protected void validate(Film film, String message) {
         if (film.getName() == null
-                || film.getName().isBlank()                          //Название не может быть пустым.
+                || film.getName().isBlank()                                      //Название не может быть пустым.
                 || film.getDescription() == null
                 || film.getDescription().isBlank()
                 || film.getDescription().length() > LIMIT_LENGTH_OF_DESCRIPTION  //Максимальная длина описания — 200 символов.
-                || film.getReleaseDate().isBefore(LIMIT_DATE)         //Дата релиза — не раньше 28 декабря 1895 года.
-                || film.getDuration() <= 0                            //Продолжительность фильма должна быть положительной.
+                || film.getReleaseDate().isBefore(LIMIT_DATE)                    //Дата релиза — не раньше 28 декабря 1895 года.
+                || film.getDuration() <= 0                                       //Продолжительность фильма должна быть положительной.
         ) {
             log.debug(message);
             throw new ValidationException(message);
