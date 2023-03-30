@@ -32,6 +32,7 @@ suppressions.xml
 checkstyle.xml
 lombok.config
 .mvn
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
