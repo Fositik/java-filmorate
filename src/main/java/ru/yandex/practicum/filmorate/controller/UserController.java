@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.*;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 
 @RestController
 @RequestMapping("/users")
@@ -23,9 +21,7 @@ public class UserController {
     private List<User> users = new ArrayList<>();
     private int nextId = 1;
     //На просторах интернета наткнулся на паттерн для проверки корректности ввода Email
-    private static final Pattern rfc2822 = Pattern.compile(
-            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
-    );
+    private static final Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
 
     /**
      * Добавляет нового пользователя
@@ -77,6 +73,7 @@ public class UserController {
      * - Имя пользователя не может быть пустым.
      * -- Если имя пользователя отсутствует, то оно будет соответствовать логину.
      * - Дата рождения пользователя не может быть позже настоящего момента времени.
+     *
      * @param user    объект User {@link User}, который содержит данные проверяемого на соответствие условиям пользователя
      * @param message сообщение об ошибке, если объект не соответствует условиям
      */

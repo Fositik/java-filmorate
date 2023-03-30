@@ -28,7 +28,6 @@ public class UserControllerTest {
         assertEquals(newUser, response.getBody());
     }
 
-
     //Тест на получение списка всех пользователей
     @Test
     public void testGetAllUsers() {
@@ -52,7 +51,6 @@ public class UserControllerTest {
         assertTrue(response.getBody().contains(user2));
     }
 
-
     //Тест на обновление пользователя с корректными данными
     @Test
     public void testUpdateUserWithValidData() {
@@ -74,7 +72,6 @@ public class UserControllerTest {
         assertEquals(updatedUser, response.getBody());
     }
 
-
     //Тест на обновление несуществующего пользователя
     @Test
     public void testUpdateNonExistingUser() {
@@ -88,7 +85,6 @@ public class UserControllerTest {
         assertThrows(ValidationException.class, () -> userController.updateUser(updatedUser));
     }
 
-
     //Тест на создание пользователя с некорректной датой рождения
     @Test
     public void testCreateUserWithInvalidBirthday() {
@@ -101,7 +97,6 @@ public class UserControllerTest {
         assertThrows(ValidationException.class, () -> userController.createUser(newUser));
     }
 
-
     //Тест на создание пользователя с некорректной электронной почтой
     @Test
     public void testCreateUserWithInvalidEmail() {
@@ -113,7 +108,6 @@ public class UserControllerTest {
         newUser.setBirthday(LocalDate.of(1990, 1, 1));
         assertThrows(ValidationException.class, () -> userController.createUser(newUser));
     }
-
 
     //Тест на создание пользователя с отсутствующим полем имени
     @Test
