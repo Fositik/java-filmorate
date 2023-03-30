@@ -19,9 +19,8 @@ import javax.validation.*;
 @Slf4j
 public class FilmController {
     private static final int LIMIT_LENGTH_OF_DESCRIPTION = 200;                     //максимальная длина описания
-    private static final LocalDate LIMIT_DATE = LocalDate.from(LocalDateTime.of(    //дата релиза
-            1895, 12, 28, 0, 0)
-    );
+    //дата релиза
+    private static final LocalDate LIMIT_DATE = LocalDate.from(LocalDateTime.of(1895, 12, 28, 0, 0));
     private final List<Film> films = new ArrayList<>();
 
     /**
