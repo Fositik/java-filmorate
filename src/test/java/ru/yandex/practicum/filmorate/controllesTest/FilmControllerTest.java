@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controllesTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2022, 1, 1));
         film.setDuration(120);
         ResponseEntity<Film> response = filmController.addFilm(film);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(film, response.getBody());
     }
 

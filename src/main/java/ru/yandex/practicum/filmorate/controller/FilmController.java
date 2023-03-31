@@ -1,10 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.*;
+import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -31,7 +30,7 @@ public class FilmController {
      */
     @PostMapping  //@PostMapping указывает, что этот метод обрабатывает HTTP POST-запросы
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-        validate(film, "Форма фильма заполнена неправильно");
+        validate(film);
         log.info("Добавление фильма: {}", film);
         film.setId(films.size() + 1);
         films.add(film);
@@ -47,7 +46,7 @@ public class FilmController {
      */
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm) {
-        validate(updatedFilm, "Форма обновления фильма заполнена неправильно");
+        validate(updatedFilm);
         log.info("Обновление фильма с id={}: {}", updatedFilm.getId(), updatedFilm);
         //Ищем фильм с указанным id в списке фильмов, используя метод filter() и метод findFirst()
         //Если фильм не найден, метод выбрасываем исключение ValidationException с сообщением об ошибке
@@ -82,19 +81,26 @@ public class FilmController {
      * - Продолжительность фильма должна быть положительной.
      *
      * @param film    объект Film {@link Film}, который содержит данные проверяемого на соответствие условиям фильма
-     * @param message сообщение об ошибке, если объект не соответствует условиям
      */
-    protected void validate(Film film, String message) {
-        if (film.getName() == null
-                || film.getName().isBlank()                                      //Название не может быть пустым.
-                || film.getDescription() == null
-                || film.getDescription().isBlank()
-                || film.getDescription().length() > LIMIT_LENGTH_OF_DESCRIPTION  //Максимальная длина описания — 200 символов.
-                || film.getReleaseDate().isBefore(LIMIT_DATE)                    //Дата релиза — не раньше 28 декабря 1895 года.
-                || film.getDuration() <= 0                                       //Продолжительность фильма должна быть положительной.
-        ) {
-            log.debug(message);
-            throw new ValidationException(message);
+    protected void validate(Film film) {
+        if (film.getName() == null || film.getName().isBlank()) {
+            log.debug("Название не может быть пустым.");
+            throw new ValidationException("Название не может быть пустым.");
+        }
+        if (film.getDescription() == null || film.getDescription().isBlank()) {
+            log.debug("Описание фильма не может быть пустым.");
+            throw new ValidationException("Описание фильма не может быть пустым.");
+        } else if (film.getDescription().length() > LIMIT_LENGTH_OF_DESCRIPTION) {
+            log.debug("Максимальная длина описания — 200 символов.");
+            throw new ValidationException("Максимальная длина описания — 200 символов.");
+        }
+        if (film.getReleaseDate().isBefore(LIMIT_DATE)) {
+            log.debug("Дата релиза — не раньше 28 декабря 1895 года.");
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года.");
+        }
+        if (film.getDuration() <= 0) {
+            log.debug("Продолжительность фильма должна быть положительной.");
+            throw new ValidationException("Продолжительность фильма должна быть положительной.");
         }
     }
 }

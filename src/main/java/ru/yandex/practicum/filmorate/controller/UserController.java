@@ -32,7 +32,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User newUser) {
         log.info("Создание пользователя: {}", newUser);
-        validate(newUser, "Error");
+        validate(newUser);
         newUser.setId(nextId++);
         users.add(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
@@ -57,7 +57,7 @@ public class UserController {
      */
     @PutMapping
     public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
-        validate(updatedUser, "User update form is filled in incorrectly");
+        validate(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
         User userToUpdate = users.stream().filter(u -> u.getId() == updatedUser.getId()).findFirst()
                 .orElseThrow(() -> new ValidationException("Пользователь с id=" + updatedUser.getId() + " не найден"));
@@ -75,16 +75,19 @@ public class UserController {
      * - Дата рождения пользователя не может быть позже настоящего момента времени.
      *
      * @param user    объект User {@link User}, который содержит данные проверяемого на соответствие условиям пользователя
-     * @param message сообщение об ошибке, если объект не соответствует условиям
      */
-    private void validate(User user, String message) {
-        if (user.getBirthday().isAfter(LocalDate.now())                 //Дата рождения не может быть в будущем.
-                || !rfc2822.matcher(user.getEmail()).matches()           //Электронная почта не может быть пустой и должна содержать символ @.
+    private void validate(User user) {
+        if (user.getBirthday().isAfter(LocalDate.now())
         ) {
-            log.debug(message);
-            throw new ValidationException(message);
+            log.debug("Дата рождения не может быть в будущем.");
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        } else if (!rfc2822.matcher(user.getEmail()).matches()) {
+            log.debug("Электронная почта не может быть пустой и должна содержать символ @.");
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
         }
         if (user.getName() == null || user.getName().isBlank()) {
+            log.info("Поле 'name' отсутствует. " +
+                    "Так как поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
             user.setName(user.getLogin());
         }
     }

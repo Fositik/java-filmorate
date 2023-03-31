@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controllesTest;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
