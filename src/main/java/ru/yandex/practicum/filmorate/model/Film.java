@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Film {
+public class Film {     //Модель фильма
     @NotNull
     private Integer id;
 

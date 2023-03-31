@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 @Builder(toBuilder = true)
-public class User {
+public class User { //Модель пользователя
     @NotNull
     private Integer id;
 
