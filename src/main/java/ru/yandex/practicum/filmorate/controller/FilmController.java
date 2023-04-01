@@ -24,7 +24,7 @@ public class FilmController {
      * Добавляет новый фильм
      *
      * @param film объект Film {@link Film}, который содержит данные фильма
-     * @return возвращает объект ResponseEntity<Film> с кодом состояния HTTP 201 CREATED и добавленным фильмом в теле ответа.
+     * @return объект Film c добавленным фильмом
      */
     @PostMapping  //@PostMapping указывает, что этот метод обрабатывает HTTP POST-запросы
     public Film addFilm(@Valid @RequestBody Film film) {
@@ -39,7 +39,7 @@ public class FilmController {
      * Обновляет данные фильма
      *
      * @param updatedFilm объект Film {@link Film}, который содержит данные обновленного фильма
-     * @return объект ResponseEntity, содержащий обновленный фильм и статус ответа HTTP 200 OK
+     * @return Film, содержащий обновленный фильм
      * @throws ValidationException если форма обновления фильма заполнена неправильно или фильм с указанным id не найден
      */
     @PutMapping
@@ -63,7 +63,7 @@ public class FilmController {
     /**
      * Возвращает список всех фильмов
      *
-     * @return объект ResponseEntity, содержащий список List фильмов
+     * @return список List фильмов
      */
     @GetMapping
     public List<Film> getAllFilms() {
@@ -78,7 +78,7 @@ public class FilmController {
      * - Дата релиза фильма не может быть раньше 28 декабря 1895 года.
      * - Продолжительность фильма должна быть положительной.
      *
-     * @param film    объект Film {@link Film}, который содержит данные проверяемого на соответствие условиям фильма
+     * @param film объект Film {@link Film}, который содержит данные проверяемого на соответствие условиям фильма
      */
     protected void validate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {

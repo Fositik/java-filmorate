@@ -25,7 +25,7 @@ public class UserController {
      * Добавляет нового пользователя
      *
      * @param newUser объект User {@link User}, который содержит данные пользователя
-     * @return возвращает объект ResponseEntity<User> с кодом состояния HTTP 201 CREATED и добавленным пользователем в теле ответа.
+     * @return возвращает объект User
      */
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
@@ -50,7 +50,7 @@ public class UserController {
     /**
      * * Обновляет данные фильма
      * * @param updatedUser объект User {@link User}, который содержит данные обновленного пользователя
-     * * @return объект ResponseEntity, содержащий обновленный фильм и статус ответа HTTP 200 OK
+     * * @return User, содержащий обновленный фильм
      * * @throws ValidationException если форма обновления пользователя заполнена неправильно или пользователь с указанным id не найден
      */
     @PutMapping
@@ -72,7 +72,7 @@ public class UserController {
      * -- Если имя пользователя отсутствует, то оно будет соответствовать логину.
      * - Дата рождения пользователя не может быть позже настоящего момента времени.
      *
-     * @param user    объект User {@link User}, который содержит данные проверяемого на соответствие условиям пользователя
+     * @param user объект User {@link User}, который содержит данные проверяемого на соответствие условиям пользователя
      */
     private void validate(User user) {
         if (user.getBirthday().isAfter(LocalDate.now())
