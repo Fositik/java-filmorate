@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.*;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +28,12 @@ public class UserController {
      * @return возвращает объект ResponseEntity<User> с кодом состояния HTTP 201 CREATED и добавленным пользователем в теле ответа.
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User newUser) {
+    public User createUser(@Valid @RequestBody User newUser) {
         log.info("Создание пользователя: {}", newUser);
         validate(newUser);
         newUser.setId(nextId++);
         users.add(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return newUser;
     }
 
     /**
@@ -44,9 +42,9 @@ public class UserController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public List<User> getAllUsers() {
         log.info("Получение списка всех пользователей");
-        return ResponseEntity.ok(users);
+        return users;
     }
 
     /**
@@ -56,7 +54,7 @@ public class UserController {
      * * @throws ValidationException если форма обновления пользователя заполнена неправильно или пользователь с указанным id не найден
      */
     @PutMapping
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
+    public User updateUser(@Valid @RequestBody User updatedUser) {
         validate(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
         User userToUpdate = users.stream().filter(u -> u.getId() == updatedUser.getId()).findFirst()
@@ -65,7 +63,7 @@ public class UserController {
         userToUpdate.setLogin(updatedUser.getLogin());
         userToUpdate.setName(updatedUser.getName());
         userToUpdate.setBirthday(updatedUser.getBirthday());
-        return ResponseEntity.ok(userToUpdate);
+        return userToUpdate;
     }
 
     /**

@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -29,12 +27,12 @@ public class FilmController {
      * @return возвращает объект ResponseEntity<Film> с кодом состояния HTTP 201 CREATED и добавленным фильмом в теле ответа.
      */
     @PostMapping  //@PostMapping указывает, что этот метод обрабатывает HTTP POST-запросы
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
+    public Film addFilm(@Valid @RequestBody Film film) {
         validate(film);
         log.info("Добавление фильма: {}", film);
         film.setId(films.size() + 1);
         films.add(film);
-        return ResponseEntity.status(HttpStatus.CREATED).body(film);
+        return film;
     }
 
     /**
@@ -45,7 +43,7 @@ public class FilmController {
      * @throws ValidationException если форма обновления фильма заполнена неправильно или фильм с указанным id не найден
      */
     @PutMapping
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm) {
+    public Film updateFilm(@Valid @RequestBody Film updatedFilm) {
         validate(updatedFilm);
         log.info("Обновление фильма с id={}: {}", updatedFilm.getId(), updatedFilm);
         //Ищем фильм с указанным id в списке фильмов, используя метод filter() и метод findFirst()
@@ -59,7 +57,7 @@ public class FilmController {
         filmToUpdate.setDescription(updatedFilm.getDescription());
         filmToUpdate.setReleaseDate(updatedFilm.getReleaseDate());
         filmToUpdate.setDuration(updatedFilm.getDuration());
-        return ResponseEntity.ok(filmToUpdate);
+        return filmToUpdate;
     }
 
     /**
@@ -68,9 +66,9 @@ public class FilmController {
      * @return объект ResponseEntity, содержащий список List фильмов
      */
     @GetMapping
-    public ResponseEntity<List<Film>> getAllFilms() {
-        log.info("Получение всех фильмов");
-        return ResponseEntity.ok(films);
+    public List<Film> getAllFilms() {
+        log.info("Получение списка всех фильмов");
+        return films;
     }
 
     /**

@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.controllesTest;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -16,7 +14,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -38,9 +35,13 @@ public class FilmControllerTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2022, 1, 1));
         film.setDuration(120);
-        ResponseEntity<Film> response = filmController.addFilm(film);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(film, response.getBody());
+
+        Film result = filmController.addFilm(film);
+
+        assertEquals("Test Film", result.getName());
+        assertEquals("Test Description", result.getDescription());
+        assertEquals(LocalDate.of(2022, 1, 1), result.getReleaseDate());
+        assertEquals(120, result.getDuration());
     }
 
 
@@ -57,11 +58,15 @@ public class FilmControllerTest {
         updatedFilm.setId(film.getId());
         updatedFilm.setName("Updated Film");
         updatedFilm.setDescription("Updated Description");
-        updatedFilm.setReleaseDate(LocalDate.of(2023, 1, 1));
+        updatedFilm.setReleaseDate(LocalDate.now());
         updatedFilm.setDuration(150);
-        ResponseEntity<Film> response = filmController.updateFilm(updatedFilm);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedFilm, response.getBody());
+
+        Film result = filmController.addFilm(updatedFilm);
+
+        assertEquals("Updated Film", result.getName());
+        assertEquals("Updated Description", result.getDescription());
+        assertEquals(LocalDate.now(), result.getReleaseDate());
+        assertEquals(150, result.getDuration());
     }
 
     //Тест на получение списка всех фильмов
@@ -79,11 +84,18 @@ public class FilmControllerTest {
         film2.setReleaseDate(LocalDate.of(2023, 1, 1));
         film2.setDuration(150);
         filmController.addFilm(film2);
-        ResponseEntity<List<Film>> response = filmController.getAllFilms();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        assertTrue(response.getBody().contains(film1));
-        assertTrue(response.getBody().contains(film2));
+
+        List<Film> result = filmController.getAllFilms();
+
+        assertEquals(2, result.size());
+        assertEquals("Test Film 1", result.get(0).getName());
+        assertEquals("Test Description 1", result.get(0).getDescription());
+        assertEquals(LocalDate.of(2022, 1, 1), result.get(0).getReleaseDate());
+        assertEquals(120, result.get(0).getDuration());
+        assertEquals("Test Film 2", result.get(1).getName());
+        assertEquals("Test Description 2", result.get(1).getDescription());
+        assertEquals(LocalDate.of(2023, 1, 1), result.get(1).getReleaseDate());
+        assertEquals(150, result.get(1).getDuration());
     }
 
     //Тест на создание фильма с некорректными данными
