@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -15,10 +16,20 @@ import java.util.List;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
+    private final FilmStorage filmStorage;
+
+    public FilmController(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
+
     private static final int LIMIT_LENGTH_OF_DESCRIPTION = 200;                     //максимальная длина описания
     //дата релиза
-    private static final LocalDate LIMIT_DATE = LocalDate.from(LocalDateTime.of(1895, 12, 28, 0, 0));
+    private static final LocalDate LIMIT_DATE = LocalDate.from(
+            LocalDateTime.of(1895, 12, 28, 0, 0)
+    );
     private final List<Film> films = new ArrayList<>();
+
+
 
     /**
      * Добавляет новый фильм
@@ -30,9 +41,7 @@ public class FilmController {
     public Film addFilm(@Valid @RequestBody Film film) {
         validate(film);
         log.info("Добавление фильма: {}", film);
-        film.setId(films.size() + 1);
-        films.add(film);
-        return film;
+        return filmStorage.addFilm(film);
     }
 
     /**
@@ -46,18 +55,7 @@ public class FilmController {
     public Film updateFilm(@Valid @RequestBody Film updatedFilm) {
         validate(updatedFilm);
         log.info("Обновление фильма с id={}: {}", updatedFilm.getId(), updatedFilm);
-        //Ищем фильм с указанным id в списке фильмов, используя метод filter() и метод findFirst()
-        //Если фильм не найден, метод выбрасываем исключение ValidationException с сообщением об ошибке
-        Film filmToUpdate = films
-                .stream()
-                .filter(f -> f.getId() == updatedFilm.getId())
-                .findFirst()
-                .orElseThrow(() -> new ValidationException("Фильм с id=" + updatedFilm.getId() + " не найден"));
-        filmToUpdate.setName(updatedFilm.getName());
-        filmToUpdate.setDescription(updatedFilm.getDescription());
-        filmToUpdate.setReleaseDate(updatedFilm.getReleaseDate());
-        filmToUpdate.setDuration(updatedFilm.getDuration());
-        return filmToUpdate;
+        return filmStorage.updateFilm(updatedFilm);
     }
 
     /**
@@ -68,7 +66,7 @@ public class FilmController {
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Получение списка всех фильмов");
-        return films;
+        return filmStorage.getAllFilms();
     }
 
     /**
@@ -82,22 +80,22 @@ public class FilmController {
      */
     protected void validate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
-            log.debug("Название не может быть пустым.");
+            log.debug("Отсутствует название фильма (null or blank).");
             throw new ValidationException("Название не может быть пустым.");
         }
         if (film.getDescription() == null || film.getDescription().isBlank()) {
-            log.debug("Описание фильма не может быть пустым.");
+            log.debug("Отсутствует описание фильма (null or blank).");
             throw new ValidationException("Описание фильма не может быть пустым.");
         } else if (film.getDescription().length() > LIMIT_LENGTH_OF_DESCRIPTION) {
-            log.debug("Максимальная длина описания — 200 символов.");
+            log.debug("Длина описания превышает лимит в 200 символов.");
             throw new ValidationException("Максимальная длина описания — 200 символов.");
         }
         if (film.getReleaseDate().isBefore(LIMIT_DATE)) {
-            log.debug("Дата релиза — не раньше 28 декабря 1895 года.");
+            log.debug("Переданная дата релиза — раньше 28 декабря 1895 года.");
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года.");
         }
         if (film.getDuration() <= 0) {
-            log.debug("Продолжительность фильма должна быть положительной.");
+            log.debug("Продолжительность фильма <=0.");
             throw new ValidationException("Продолжительность фильма должна быть положительной.");
         }
     }
