@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @Data
 public class Film {
     @NotNull
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
     //Аннотация @NotBlank указывает, что поле не может быть пустым
@@ -33,6 +34,5 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
-    @PositiveOrZero(message = "Количество лайков не может быть отрицательным")
-    private Integer likes;
+    private List<Long> likedBy;
 }

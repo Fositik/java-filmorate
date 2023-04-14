@@ -1,20 +1,27 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-public interface UserStorage {
-    User addUser(String email, String login, String name, LocalDate birthday);
+import java.util.List;
+import java.util.Set;
 
-    User getUser(int id) throws EntityNotFoundException;
+public interface UserStorage {
+    User createUser(User newUser) throws ValidationException;
 
     List<User> getAllUsers();
 
-    void updateUser(int id, String email, String login, String name, LocalDate birthday)
-            throws EntityNotFoundException;
+    User getUserById(Long id);
 
-    void deleteUser(int id) throws EntityNotFoundException;
+    User updateUser(User updatedUser);
+
+    User remove(long id);
+
+    void addFriend(long userId, long friendId);
+
+    void removeFriend(long userId, long friendId);
+
+    Set<Long> getCommonFriends(long userId, long otherId);
+
+    Set<Long> getFriends(long user);
 }
