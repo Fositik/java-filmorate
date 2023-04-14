@@ -30,24 +30,16 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        User user = userStorage.getUserById(userId);
-        return user;
+        return userStorage.getUserById(userId);
     }
 
     public User updateUser(User updatedUser) {
-        userStorage.updateUser(updatedUser);
-        return updatedUser;
+       return userStorage.updateUser(updatedUser);
     }
 
     public User remove(Long id) {
-        User removedUser = userStorage.remove(id);
-        return removedUser;
+        return userStorage.remove(id);
     }
-
-//    public void addFriend(Long userId, Long friendId) {
-//        userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
-//        userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).add(userId);
-//    }
 
     public void removeFriend(Long userId, Long friendId) {
         userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).remove(friendId);

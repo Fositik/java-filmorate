@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import javax.validation.Valid;
@@ -16,46 +15,43 @@ import java.util.Set;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserStorage userStorage;
+
+    private final UserService userService;
 
 
-    private UserController(UserService userService, UserStorage userStorage) {
+    @Autowired
+    private UserController(UserService userService) {
         this.userService = userService;
-        this.userStorage = userStorage;
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
         UserValidator.validate(newUser);
-        userService.createUser(newUser);
         log.info("Создание пользователя: {}", newUser);
-        return newUser;
+        return userService.createUser(newUser);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
         log.info("Получение списка всех пользователей");
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
         UserValidator.validate(updatedUser);
-        userService.updateUser(updatedUser);
+        // userService.updateUser(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
-        return userStorage.updateUser(updatedUser);
+        return userService.updateUser(updatedUser);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@Valid @RequestBody long id) {
+    public User getUserById( @PathVariable("id") long id) {
         log.info("Получение пользователя с id={}", id);
-        return userStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
-    @PostMapping("/{id}/friends/{friendId}")
+    @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable(name = "id") Long id, @PathVariable(name = "friendId") Long friendId) {
         log.info("Добавление пользователем с id={} в друзья: пользователя с id={}", id, friendId);
         userService.addFriend(id, friendId);
