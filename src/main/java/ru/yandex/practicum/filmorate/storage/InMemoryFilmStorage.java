@@ -15,13 +15,12 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
-   // private AtomicInteger nextId = new AtomicInteger(1);
+
 private FilmIdFactory filmIdFactory;
     @Override
     public Film addFilm(Film film) throws ValidationException {
         FilmValidator.validateCreate(new ArrayList<>(films.keySet()),film);
-        filmIdFactory.setUniqueFilmId(new ArrayList<>(films.keySet()),film);
-        //film.setId(nextId.getAndIncrement());
+        FilmIdFactory.setUniqueFilmId(film);
         films.put(film.getId(), film);
         return film;
     }
@@ -35,7 +34,7 @@ private FilmIdFactory filmIdFactory;
         filmToUpdate.setDescription(updatedFilm.getDescription());
         filmToUpdate.setReleaseDate(updatedFilm.getReleaseDate());
         filmToUpdate.setDuration(updatedFilm.getDuration());
-        filmToUpdate.setLikedBy(updatedFilm.getLikedBy());
+      //  filmToUpdate.setLikedBy(updatedFilm.getLikedBy());
         return filmToUpdate;
     }
 

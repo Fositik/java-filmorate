@@ -2,18 +2,21 @@ package ru.yandex.practicum.filmorate.util.idfactory;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.List;
 import java.util.TreeSet;
 
 public class FilmIdFactory {
-    public static void setUniqueFilmId(List<Long> idList, Film film) {
-        TreeSet<Long> filmIds = new TreeSet<>(idList);
-        if (filmIds.isEmpty()) {
-            film.setId(1L);
-            return;
-        }
-        final Long lastId = filmIds.last() + 1;
-        film.setId(lastId);
-    }
+    private static TreeSet<Long> filmIds = new TreeSet<>();
 
+    public static Film setUniqueFilmId(Film film) {
+
+        if (filmIds.isEmpty()) {
+            filmIds.add(1L);
+            film.setId(1L);
+        } else {
+            final Long lastId = filmIds.last() + 1;
+            filmIds.add(lastId);
+            film.setId(lastId);
+        }
+        return film;
+    }
 }

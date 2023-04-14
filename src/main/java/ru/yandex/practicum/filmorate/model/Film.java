@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -34,5 +33,5 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
-    private List<Long> likedBy;
+//    private List<Long> likedBy;
 }

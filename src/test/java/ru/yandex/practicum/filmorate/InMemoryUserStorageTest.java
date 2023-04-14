@@ -2,25 +2,24 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.time.LocalDate;
 import java.util.List;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InMemoryUserStorageTest {
 
-    @Autowired
-    private InMemoryUserStorage userController;
 
+    private InMemoryUserStorage userController;
+private UserStorage userStorage;
     @BeforeEach
     public void setUp() {
         userController = new InMemoryUserStorage();

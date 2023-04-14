@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,9 +31,9 @@ public class User {
     @NotNull
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-    @JsonIgnoreProperties(value = {"friends"}, allowGetters = true)
-    //Эта аннотация будет игнорировать поле «друзья» при сериализации и десериализации объекта,
-    //чтобы избежать бесконечной рекурсии при сериализации объекта.
-    //allowGetters = true, чтобы разрешить десериализацию для установки значения поля.
-    private Set<User> friends;
+//    @JsonIgnoreProperties(value = {"friends"}, allowGetters = true)
+//    //Эта аннотация будет игнорировать поле «друзья» при сериализации и десериализации объекта,
+//    //чтобы избежать бесконечной рекурсии при сериализации объекта.
+//    //allowGetters = true, чтобы разрешить десериализацию для установки значения поля.
+//    private Set<User> friends;
 }

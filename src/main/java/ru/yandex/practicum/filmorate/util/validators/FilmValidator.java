@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class FilmValidator {
@@ -63,7 +64,7 @@ public class FilmValidator {
         }
     }
 
-    public static void validateLike(List<Long> likedBy, Long id) throws ValidationException {
+    public static void validateLike(Set<Long> likedBy, Long id) throws ValidationException {
         if (likedBy.contains(id)) {
             log.error("Пользователь уже поставил лайк данному фильму: {}", likedBy);
             throw new ValidationException("Пользователь уже поставил лайк данному фильму");

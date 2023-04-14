@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class UserValidator {
     private static final Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
 
-    public static void validate(User user) {
+    public static void validate(User user) throws ValidationException{
         if (user.getBirthday().isAfter(LocalDate.now())
         ) {
             log.debug("Дата рождения не может быть в будущем.");
@@ -27,12 +27,22 @@ public class UserValidator {
                     "Так как поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
             user.setName(user.getLogin());
         }
+//        if (user.getFriends() == null){
+//            log.info("Пользователь не имеет друзей");
+//            user.setFriends(null);
+//        }
     }
 
-    public static void validateCreate(List<Long> userIds,User createdUser)throws ValidationException{
+    public static void validateCreate(List<User> existingUsers,User createdUser)throws ValidationException{
         if(createdUser.getId()!=null){
-            if(userIds.contains(createdUser.getId())){
+            if(existingUsers.stream().anyMatch(u-> u.getId().equals(createdUser.getId()))){
                 throw new ValidationException("Пользователь уже существует");
+            }
+            if (existingUsers.stream().anyMatch(u -> u.getEmail().equals(createdUser.getEmail()))) {
+                throw new ValidationException("Пользователь с таким email уже существует");
+            }
+            if (existingUsers.stream().anyMatch(u -> u.getLogin().equals(createdUser.getLogin()))) {
+                throw new ValidationException("Пользователь с таким логином уже существует");
             }
         }
     }
@@ -48,9 +58,9 @@ public class UserValidator {
         }
     }
 
-    public static void validateExist(List<Long> userIds, long id) throws NotFoundException {
-        if(!userIds.contains(id)) {
-            throw new NotFoundException(String.format("Пользователь с id %s не найден", id));
+    public static void validateExist(List<Long> reservedIds, long id) throws NotFoundException {
+        if (!reservedIds.contains(id)) {
+            throw new NotFoundException(String.format("Пользователь под id %s не найден", id));
         }
     }
 }

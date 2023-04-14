@@ -5,8 +5,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.util.idfactory.FilmIdFactory;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,10 +17,10 @@ public class FilmIdFactoryTest {
        film1.setDuration(120);
        film1.setReleaseDate(LocalDate.now().minusYears(10));
 
-        List<Long> idSet = new ArrayList<>();
-        FilmIdFactory.setUniqueFilmId(idSet, film1);
+       // List<Long> idSet = new ArrayList<>();
+        FilmIdFactory.setUniqueFilmId( film1);
         // User result = userService.createUser(user1);
-        assertEquals(0, idSet.size());
+      //  assertEquals(0, idSet.size());
         assertEquals(1, (long) film1.getId());
     }
 
@@ -34,11 +32,11 @@ public class FilmIdFactoryTest {
         film1.setDuration(120);
         film1.setReleaseDate(LocalDate.now().minusYears(10));
 
-        List<Long> idSet = new ArrayList<>();
+      //  List<Long> idSet = new ArrayList<>();
 
-        FilmIdFactory.setUniqueFilmId(idSet, film1);
+        FilmIdFactory.setUniqueFilmId( film1);
 
-        assertEquals(0, idSet.size());
+      //  assertEquals(0, idSet.size());
         assertEquals(1, (long) film1.getId());
 
         Film film2 = new Film();
@@ -47,9 +45,9 @@ public class FilmIdFactoryTest {
         film2.setDuration(120);
         film2.setReleaseDate(LocalDate.now().minusYears(10));
 
-        assertEquals(0, idSet.size());
-        idSet.add(1L);
-        FilmIdFactory.setUniqueFilmId(idSet, film2);
+       // assertEquals(0, idSet.size());
+      //  idSet.add(1L);
+        FilmIdFactory.setUniqueFilmId( film2);
         assertEquals(2, (long) film2.getId());
     }
 }

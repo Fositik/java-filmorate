@@ -29,7 +29,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleError(Throwable e) {
+    public ErrorResponse handleError(Throwable ex) {
+        log.error(HttpStatus.INTERNAL_SERVER_ERROR.toString(), ex);
         return new ErrorResponse("Возникла ошибка!");
     }
 

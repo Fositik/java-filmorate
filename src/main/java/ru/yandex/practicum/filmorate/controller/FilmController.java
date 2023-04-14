@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/films")
@@ -54,21 +55,21 @@ public class FilmController {
     }
 
     @PostMapping("/{id}/like/{userId}")
-    public List<Long> addLikeToFilm(@PathVariable(name = "id") long id, @PathVariable(name = "userId") long userId) {
-        List<Long> filmLikes = filmService.addLikeToFilm(id, userId);
+    public Set<Long> addLikeToFilm(@PathVariable(name = "id") long id, @PathVariable(name = "userId") long userId) {
+        Set<Long> filmLikes = filmService.addLikeToFilm(id, userId);
         log.info("Добавление лайка к фильму под id: {} от пользователя с id: {}", id, userId);
         return filmLikes;
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public List<Long> removeLike(@PathVariable(name = "id") long id, @PathVariable(name = "userId") long userId) {
-        List<Long> filmLikes = filmService.removeLike(id, userId);
+    public Set<Long> removeLike(@PathVariable(name = "id") long id, @PathVariable(name = "userId") long userId) {
+        Set<Long> filmLikes = filmService.removeLike(id, userId);
         log.info("Удаление лайка с фильма под id: {} от пользователя с id: {}", id, userId);
         return filmLikes;
     }
 
     @GetMapping("/popular?count={count}")
-    public List<Film> getTopFilmsByLikes(@RequestBody Integer count) {
+    public List<Film> getTopFilmsByLikes (@RequestParam(defaultValue = "10", required = false) Integer count) {
         List<Film> filmsRating = filmService.getTopFilmsByLikes(count);
         log.info("Получение списка из топ {} фильмов", count);
         return filmsRating;

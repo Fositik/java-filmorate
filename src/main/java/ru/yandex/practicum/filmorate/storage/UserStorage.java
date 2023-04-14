@@ -11,13 +11,13 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    User getUserById(Long id);
+    User getUserById(long id);
 
     User updateUser(User updatedUser);
 
     User remove(long id);
 
-    void addFriend(long userId, long friendId);
+    void addFriend(Long userId, Long friendId);
 
     void removeFriend(long userId, long friendId);
 
