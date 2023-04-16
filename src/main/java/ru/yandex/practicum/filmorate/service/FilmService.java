@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-     private final Map<Long, Set<Long>> likedFilmsByUser;
-public UserService userService;
+    private final Map<Long, Set<Long>> likedFilmsByUser;
+    public UserService userService;
+
     //Мапа для хранения фильмов понравившихся пользователю <ID пользователя, Set<ID понравившихся фильмов>>
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
-          this.likedFilmsByUser = new HashMap<>();
+        this.likedFilmsByUser = new HashMap<>();
     }
 
     public Film addFilm(Film film) throws ValidationException, NotFoundException {
@@ -44,7 +46,7 @@ public UserService userService;
         return filmList;
     }
 
-    public List<Film> getTopFilmsByLikes(Integer count) {
+    public List<Film> getTopFilmsByLikes(Long count) {
         List<Film> popular = filmStorage.getAllFilms();
         if (popular.size() <= 1) {
             return popular;
@@ -69,13 +71,15 @@ public UserService userService;
         Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
         FilmValidator.validateLike(likedBy, filmId);
         likedBy.add(userId);
-       // filmStorage.updateFilm(film);
+        // filmStorage.updateFilm(film);
         return likedBy;
     }
 
     public Set<Long> removeLike(Long filmId, Long userId) throws NotFoundException {
         Film film = filmStorage.getFilmById(filmId);
         Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
+        List<Long> likedByIdsList = new ArrayList<>(likedBy);
+        UserValidator.validateExist(likedByIdsList, filmId);
         filmStorage.removeLike(filmId, userId);
         likedBy.remove(userId);
         return likedBy;

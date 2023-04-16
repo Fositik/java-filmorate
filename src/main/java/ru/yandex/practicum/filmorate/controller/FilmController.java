@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -48,13 +49,13 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@Valid @RequestBody Long id) {
+    public Film getFilmById(@PathVariable(name = "id") Long id) throws NotFoundException {
         Film film = filmService.getFilmById(id);
         log.info("Получение фильма с id={}", id);
         return film;
     }
 
-    @PostMapping("/{id}/like/{userId}")
+    @PutMapping("/{id}/like/{userId}")
     public Set<Long> addLikeToFilm(@PathVariable(name = "id") long id, @PathVariable(name = "userId") long userId) {
         Set<Long> filmLikes = filmService.addLikeToFilm(id, userId);
         log.info("Добавление лайка к фильму под id: {} от пользователя с id: {}", id, userId);
@@ -68,8 +69,8 @@ public class FilmController {
         return filmLikes;
     }
 
-    @GetMapping("/popular?count={count}")
-    public List<Film> getTopFilmsByLikes (@RequestParam(defaultValue = "10", required = false) Integer count) {
+    @GetMapping("/popular")
+    public List<Film> getTopFilmsByLikes (@RequestParam(defaultValue = "10", required = false) Long count) {
         List<Film> filmsRating = filmService.getTopFilmsByLikes(count);
         log.info("Получение списка из топ {} фильмов", count);
         return filmsRating;

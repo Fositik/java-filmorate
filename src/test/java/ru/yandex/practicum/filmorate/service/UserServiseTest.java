@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,16 +12,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UserStorageTest {
+public class UserServiseTest {
+
+    private UserService userService;
     private UserStorage userStorage;
 
     @BeforeEach
     public void setUp() {
         userStorage = new InMemoryUserStorage();
+        userService = new UserService(userStorage);
+     //   userStorage = new InMemoryUserStorage();
     }
 
     @Test
-    void getUserById() {
+    void addFriend() {
         User user1 = new User();
         user1.setEmail("test@test.com");
         user1.setLogin("test");
@@ -30,16 +34,28 @@ public class UserStorageTest {
         List<Long> idSet = new ArrayList<>();
         userStorage.createUser(user1);
 
-        assertEquals(1, (long) user1.getId());
-        assertEquals(user1, userStorage.getUserById(user1.getId()));
-
         User user2 = new User();
         user2.setEmail("test1@test.com");
         user2.setLogin("test1");
-        user2.setName("Test User1");
+        user2.setName("Test User 1");
         user2.setBirthday(LocalDate.of(1991, 1, 1));
         userStorage.createUser(user2);
 
-        assertEquals(user1, userStorage.getUserById(user1.getId()));
+        userService.addFriend(user1.getId(),user2.getId());
+
+        assertEquals(1, userService.getFriends(user1.getId()).size());
+     //   assertEquals(user1, userStorage.getUserById(user1.getId()));
+
+        User user3 = new User();
+        user3.setEmail("test2@test.com");
+        user3.setLogin("test2");
+        user3.setName("Test User 2");
+        user3.setBirthday(LocalDate.of(1992, 1, 1));
+        userStorage.createUser(user3);
+
+        userService.addFriend(user1.getId(),user3.getId());
+
+        assertEquals(2, userService.getFriends(user1.getId()).size());
     }
+
 }

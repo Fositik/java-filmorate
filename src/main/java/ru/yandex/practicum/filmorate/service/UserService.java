@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.util.*;
 
@@ -25,8 +26,7 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        List<User> allUsers = userStorage.getAllUsers();
-        return allUsers;
+        return userStorage.getAllUsers();
     }
 
     public User getUserById(Long userId) {
@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public User updateUser(User updatedUser) {
-       return userStorage.updateUser(updatedUser);
+        return userStorage.updateUser(updatedUser);
     }
 
     public User remove(Long id) {
@@ -46,35 +46,38 @@ public class UserService {
         userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).remove(userId);
     }
 
-    public Set<Long> getCommonFriends(Long userId, Long otherId) {
-        Set<Long> friendsOfUser = userFriendIdsMap.getOrDefault(userId, new HashSet<>());
-        //Получаем набор друзей пользователя
-        Set<Long> friendsOfUserFriend = userFriendIdsMap.getOrDefault(otherId, new HashSet<>());
-        //Получаем набор друзей другого пользователя
-        Set<Long> commonFriends = new HashSet<>(friendsOfUser);
-        //Создаем новый набор commonFriends, инициализированный набором друзей пользователя
-        commonFriends.retainAll(friendsOfUserFriend);
-        //Метод retainAll меняет commonFriends так, чтобы в нем остались только общие элементы
+    public List<User> getCommonFriends(Long userId, Long otherId) {
+        List<User> userFriends = getFriends(userId);
+        List<User> friendsOfOtherUser = getFriends(otherId);
+        List<User> commonFriends = new ArrayList<>(userFriends);
+        commonFriends.retainAll(friendsOfOtherUser);
         return commonFriends;
     }
 
-    public Set<User> getFriends(Long user) {
-        Set<Long> friendIds = userFriendIdsMap.getOrDefault(user, new HashSet<>());
-        Set<User> friends = new HashSet<>();
+    public List<User> getFriends(Long userId) {
+        Set<Long> friendIds = userFriendIdsMap.getOrDefault(userId, new HashSet<>());
+        List<User> friends = new ArrayList<>();
         for (Long friendId : friendIds) {
-            Set<Long> friendFriendIds = userFriendIdsMap.getOrDefault(friendId, new HashSet<>());
-            if (friendFriendIds.contains(user)) {
-                friends.add(getUserById(friendId));
+            User friend = getUserById(friendId);
+            if (friend != null) {
+                friends.add(friend);
             }
         }
         return friends;
     }
+
     public void addFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-        Set<Long> friends = userFriendIdsMap.getOrDefault(user.getId(), new HashSet<>());
-        friends.add(friend.getId());
-        userFriendIdsMap.put(user.getId(), friends);
+        List<User> allUsers = getAllUsers();
+        List<Long> allUserIds = new ArrayList<>();
+        for (User user : allUsers) {
+           Long id = user.getId();
+           allUserIds.add(id);
+        }
+        UserValidator.validateExist(allUserIds,friendId);
+
+        userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
+        userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).add(userId);
+
     }
 
 }
