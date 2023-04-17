@@ -19,7 +19,8 @@ class InMemoryUserStorageTest {
 
 
     private InMemoryUserStorage userController;
-private UserStorage userStorage;
+    private UserStorage userStorage;
+
     @BeforeEach
     public void setUp() {
         userController = new InMemoryUserStorage();
@@ -140,7 +141,7 @@ private UserStorage userStorage;
         newUser.setName("");
         newUser.setBirthday(LocalDate.of(1990, 1, 1));
 
-       // User result = userController.createUser(newUser);
+        // User result = userController.createUser(newUser);
 
         assertEquals("test", newUser.getName());
     }
@@ -154,7 +155,7 @@ private UserStorage userStorage;
         newUser.setName(null);
         newUser.setBirthday(LocalDate.of(1990, 1, 1));
 
-       // User result = userController.createUser(newUser);
+        // User result = userController.createUser(newUser);
 
         assertEquals("test", newUser.getName());
     }

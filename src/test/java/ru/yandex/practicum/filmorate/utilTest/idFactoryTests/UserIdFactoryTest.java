@@ -19,10 +19,10 @@ public class UserIdFactoryTest {
         user1.setLogin("test");
         user1.setName("Test User");
         user1.setBirthday(LocalDate.of(1990, 1, 1));
-       // List<Long> idSet = new ArrayList<>();
-        UserIdFactory.setUniqueUserId( user1);
+        // List<Long> idSet = new ArrayList<>();
+        UserIdFactory.setUniqueUserId(user1);
         // User result = userService.createUser(user1);
-       // assertEquals(0, idSet.size());
+        // assertEquals(0, idSet.size());
         assertEquals(1, (long) user1.getId());
     }
 
@@ -34,17 +34,17 @@ public class UserIdFactoryTest {
         user1.setName("Test User");
         user1.setBirthday(LocalDate.of(1990, 1, 1));
         List<Long> idSet = new ArrayList<>();
-        UserIdFactory.setUniqueUserId( user1);
-       // assertEquals(0, idSet.size());
+        UserIdFactory.setUniqueUserId(user1);
+        // assertEquals(0, idSet.size());
         assertEquals(1, (long) user1.getId());
         User user2 = new User();
         user2.setEmail("test2@test.com");
         user2.setLogin("test2");
         user2.setName("Test User 2");
         user2.setBirthday(LocalDate.of(1991, 1, 1));
-       // assertEquals(0, idSet.size());
+        // assertEquals(0, idSet.size());
         idSet.add(1L);
-        UserIdFactory.setUniqueUserId( user2);
+        UserIdFactory.setUniqueUserId(user2);
         assertEquals(2, (long) user2.getId());
     }
 }

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class UserValidator {
     private static final Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
 
-    public static void validate(User user) throws ValidationException{
+    public static void validate(User user) throws ValidationException {
         if (user.getBirthday().isAfter(LocalDate.now())
         ) {
             log.debug("Дата рождения не может быть в будущем.");
@@ -33,9 +33,9 @@ public class UserValidator {
 //        }
     }
 
-    public static void validateCreate(List<User> existingUsers,User createdUser)throws ValidationException{
-        if(createdUser.getId()!=null){
-            if(existingUsers.stream().anyMatch(u-> u.getId().equals(createdUser.getId()))){
+    public static void validateCreate(List<User> existingUsers, User createdUser) throws ValidationException {
+        if (createdUser.getId() != null) {
+            if (existingUsers.stream().anyMatch(u -> u.getId().equals(createdUser.getId()))) {
                 throw new ValidationException("Пользователь уже существует");
             }
             if (existingUsers.stream().anyMatch(u -> u.getEmail().equals(createdUser.getEmail()))) {
@@ -46,9 +46,10 @@ public class UserValidator {
             }
         }
     }
+
     public static void validateUpdate(List<Long> userIds, User updatedUser)
             throws ValidationException, NotFoundException {
-        if(updatedUser.getId() == null) {
+        if (updatedUser.getId() == null) {
             log.error("Пользователь еще не был создан: {}", updatedUser);
             throw new ValidationException("Пользователь еще не был создан");
         }
@@ -64,9 +65,10 @@ public class UserValidator {
             throw new NotFoundException(String.format("Пользователь под id %s не найден", id));
         }
     }
-    public static void userIncorrectId(long userId){
-        if (userId<=0){
-            log.error("Некорректный идентификатор пользователя: {}",userId);
+
+    public static void userIncorrectId(long userId) {
+        if (userId <= 0) {
+            log.error("Некорректный идентификатор пользователя: {}", userId);
             throw new NotFoundException("Некорректный идентификатор пользователя");
         }
     }

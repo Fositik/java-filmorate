@@ -23,7 +23,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ErrorResponse handleNotFoundException(NotFoundException ex) {
-        log.error(HttpStatus.NOT_FOUND.toString(),ex);
+        log.error(HttpStatus.NOT_FOUND.toString(), ex);
         return new ErrorResponse(ex.getMessage());
     }
 

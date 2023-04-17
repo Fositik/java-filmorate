@@ -71,22 +71,22 @@ public class FilmServiceTest {
         film3.setReleaseDate(LocalDate.now().minusYears(20));
         filmStorage.addFilm(film3);
 
-        List<Film>filmTop = filmService.getTopFilms(10L);
+        List<Film> filmTop = filmService.getTopFilms(10L);
 
-        assertEquals(2,filmTop.size());
+        assertEquals(2, filmTop.size());
 
         assertEquals(2, filmService.getTopFilms(10L).size());
 
         Film filmNum0 = filmTop.get(0);
-        assertEquals(2,filmNum0.getId());
-        assertEquals("name2",filmNum0.getName());
+        assertEquals(2, filmNum0.getId());
+        assertEquals("name2", filmNum0.getName());
         assertEquals("descryption2", filmNum0.getDescription());
         ///...
 
         Film filmNum1 = filmTop.get(1);
 
-        assertEquals(1,filmNum1.getId());
-        assertEquals("11",filmNum1.getName());
+        assertEquals(1, filmNum1.getId());
+        assertEquals("11", filmNum1.getName());
         assertEquals("descryption1", filmNum1.getDescription());
         ///...
     }
