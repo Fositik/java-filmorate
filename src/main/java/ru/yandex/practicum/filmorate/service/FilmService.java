@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,11 +81,12 @@ public class FilmService {
 
 
     public void removeLike(Long filmId, Long userId) throws NotFoundException {
+        UserValidator.userIncorrectId(userId);
         Set<Long> likedBy = likedFilmsByUser.getOrDefault(filmId, new HashSet<>());
         if (likedBy.remove(userId)) {
             likedFilmsByUser.put(filmId, likedBy);
         } else {
-            throw new NotFoundException("User with id " + userId + " did not like film with id " + filmId);
+            throw new NotFoundException("Пользователь с id " + userId + " не ставил лайк фильму с id " + filmId);
         }
     }
 }

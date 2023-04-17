@@ -64,7 +64,7 @@ public class UserValidator {
             throw new NotFoundException(String.format("Пользователь под id %s не найден", id));
         }
     }
-    private static void userIncorrectId(long userId){
+    public static void userIncorrectId(long userId){
         if (userId<=0){
             log.error("Некорректный идентификатор пользователя: {}",userId);
             throw new NotFoundException("Некорректный идентификатор пользователя");
