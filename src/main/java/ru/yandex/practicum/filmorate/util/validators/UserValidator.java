@@ -59,8 +59,15 @@ public class UserValidator {
     }
 
     public static void validateExist(List<Long> reservedIds, long id) throws NotFoundException {
+        userIncorrectId(id);
         if (!reservedIds.contains(id)) {
             throw new NotFoundException(String.format("Пользователь под id %s не найден", id));
+        }
+    }
+    private static void userIncorrectId(long userId){
+        if (userId<=0){
+            log.error("Некорректный идентификатор пользователя: {}",userId);
+            throw new NotFoundException("Некорректный идентификатор пользователя");
         }
     }
 }

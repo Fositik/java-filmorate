@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,18 +15,18 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final Map<Long, Set<Long>> likedFilmsByUser;
+    private final Map<Long, Set<Long>> likedFilmsByUser = new HashMap<>();
     public UserService userService;
 
     //Мапа для хранения фильмов понравившихся пользователю <ID пользователя, Set<ID понравившихся фильмов>>
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
-        this.likedFilmsByUser = new HashMap<>();
     }
 
     public Film addFilm(Film film) throws ValidationException, NotFoundException {
         filmStorage.addFilm(film);
+        likedFilmsByUser.computeIfAbsent(film.getId(), k -> new HashSet<>()).add(null);
         return film;
     }
 
@@ -37,51 +36,55 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) throws NotFoundException {
-        Film film = filmStorage.getFilmById(id);
-        return film;
+        return filmStorage.getFilmById(id);
     }
 
     public List<Film> getAllFilms() {
-        List<Film> filmList = filmStorage.getAllFilms();
-        return filmList;
+        return filmStorage.getAllFilms();
     }
 
-    public List<Film> getTopFilmsByLikes(Long count) {
-        List<Film> popular = filmStorage.getAllFilms();
+    public Set<Long> getFilmLikes(Long filmId) {
+        return likedFilmsByUser.values().stream()
+                .filter(likedFilms -> likedFilms != null && likedFilms.contains(filmId))
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+    }
+
+    public List<Film> getTopFilms(Long count) {
+        List<Film> popular = new ArrayList<>();
+        for (Long filmId : likedFilmsByUser.keySet()) {
+            Film film = filmStorage.getFilmById(filmId);
+            if (film != null) {
+                popular.add(film);
+            }
+        }
         if (popular.size() <= 1) {
             return popular;
         } else {
-            return popular.stream()
-                    .sorted((film1, film2) -> {
-                        int result = Integer.compare(
-                                filmStorage.getFilmLikes(film1.getId()).size(),
-                                filmStorage.getFilmLikes(film2.getId()).size()
-                        );
-                        result = -1 * result;
-                        return result;
-                    })
-                    .limit(count)
-                    .collect(Collectors.toList());
+            Collections.sort(popular, (f1, f2) -> {
+                int likes1 = likedFilmsByUser.getOrDefault(f1.getId(), Collections.emptySet()).size();
+                int likes2 = likedFilmsByUser.getOrDefault(f2.getId(), Collections.emptySet()).size();
+                return Integer.compare(likes2, likes1);
+            });
+            return popular.subList(0, (int) Math.min(count, popular.size()));
         }
-
     }
 
-    public Set<Long> addLikeToFilm(Long filmId, Long userId) {
-        Film film = filmStorage.getFilmById(filmId);
+    public void addLikeToFilm(Long filmId, Long userId) {
+
         Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
         FilmValidator.validateLike(likedBy, filmId);
-        likedBy.add(userId);
-        // filmStorage.updateFilm(film);
-        return likedBy;
+
+        likedFilmsByUser.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
     }
 
-    public Set<Long> removeLike(Long filmId, Long userId) throws NotFoundException {
-        Film film = filmStorage.getFilmById(filmId);
-        Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
-        List<Long> likedByIdsList = new ArrayList<>(likedBy);
-        UserValidator.validateExist(likedByIdsList, filmId);
-        filmStorage.removeLike(filmId, userId);
-        likedBy.remove(userId);
-        return likedBy;
+
+    public void removeLike(Long filmId, Long userId) throws NotFoundException {
+        Set<Long> likedBy = likedFilmsByUser.getOrDefault(filmId, new HashSet<>());
+        if (likedBy.remove(userId)) {
+            likedFilmsByUser.put(filmId, likedBy);
+        } else {
+            throw new NotFoundException("User with id " + userId + " did not like film with id " + filmId);
+        }
     }
 }

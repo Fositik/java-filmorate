@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.util.idfactory.FilmIdFactory;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -60,8 +57,11 @@ private FilmIdFactory filmIdFactory;
     }
 
     @Override
-    public List<Long> getFilmLikes(Long filmId) {
+    public Set<Long> getFilmLikes(Long filmId) {
         return null;
     }
+
+    @Override
+    public List<Film> getTopFilms(Long count){ return null;}
 
 }
