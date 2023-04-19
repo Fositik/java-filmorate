@@ -50,7 +50,7 @@ public class UserService {
     public List<User> getCommonFriends(Long userId, Long otherId) {
         List<User> userFriends = getFriends(userId);
         List<User> friendsOfOtherUser = getFriends(otherId);
-        
+
         return userFriends.stream()
                 .filter(friendsOfOtherUser::contains)
                 .collect(Collectors.toList());
