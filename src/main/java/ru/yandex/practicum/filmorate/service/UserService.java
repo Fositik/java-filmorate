@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -49,35 +50,28 @@ public class UserService {
     public List<User> getCommonFriends(Long userId, Long otherId) {
         List<User> userFriends = getFriends(userId);
         List<User> friendsOfOtherUser = getFriends(otherId);
-        List<User> commonFriends = new ArrayList<>(userFriends);
-        commonFriends.retainAll(friendsOfOtherUser);
-        return commonFriends;
+        
+        return userFriends.stream()
+                .filter(friendsOfOtherUser::contains)
+                .collect(Collectors.toList());
     }
 
     public List<User> getFriends(Long userId) {
-        Set<Long> friendIds = userFriendIdsMap.getOrDefault(userId, new HashSet<>());
-        List<User> friends = new ArrayList<>();
-        for (Long friendId : friendIds) {
-            User friend = getUserById(friendId);
-            if (friend != null) {
-                friends.add(friend);
-            }
-        }
-        return friends;
+        return userFriendIdsMap.getOrDefault(userId, new HashSet<>())
+                .stream()
+                .map(this::getUserById).filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public void addFriend(Long userId, Long friendId) {
-        List<User> allUsers = getAllUsers();
-        List<Long> allUserIds = new ArrayList<>();
-        for (User user : allUsers) {
-           Long id = user.getId();
-           allUserIds.add(id);
-        }
-        UserValidator.validateExist(allUserIds,friendId);
+        List<Long> allUserIds = getAllUsers()
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        UserValidator.validateExist(allUserIds, friendId);
 
         userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
         userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).add(userId);
-
     }
-
 }

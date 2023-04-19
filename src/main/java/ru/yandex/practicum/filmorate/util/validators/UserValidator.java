@@ -27,10 +27,6 @@ public class UserValidator {
                     "Так как поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
             user.setName(user.getLogin());
         }
-//        if (user.getFriends() == null){
-//            log.info("Пользователь не имеет друзей");
-//            user.setFriends(null);
-//        }
     }
 
     public static void validateCreate(List<User> existingUsers, User createdUser) throws ValidationException {

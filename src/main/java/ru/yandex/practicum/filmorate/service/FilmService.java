@@ -52,22 +52,22 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(Long count) {
-        List<Film> popular = new ArrayList<>();
-        for (Long filmId : likedFilmsByUser.keySet()) {
-            Film film = filmStorage.getFilmById(filmId);
-            if (film != null) {
-                popular.add(film);
-            }
-        }
+        List<Film> popular = likedFilmsByUser.keySet().stream()
+                .map(filmStorage::getFilmById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
         if (popular.size() <= 1) {
             return popular;
         } else {
-            Collections.sort(popular, (f1, f2) -> {
-                int likes1 = likedFilmsByUser.getOrDefault(f1.getId(), Collections.emptySet()).size();
-                int likes2 = likedFilmsByUser.getOrDefault(f2.getId(), Collections.emptySet()).size();
-                return Integer.compare(likes2, likes1);
-            });
-            return popular.subList(0, (int) Math.min(count, popular.size()));
+            return popular.stream()
+                    .sorted((f1, f2) -> {
+                        int likes1 = likedFilmsByUser.getOrDefault(f1.getId(), Collections.emptySet()).size();
+                        int likes2 = likedFilmsByUser.getOrDefault(f2.getId(), Collections.emptySet()).size();
+                        return Integer.compare(likes2, likes1);
+                    })
+                    .limit(count)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -79,14 +79,19 @@ public class FilmService {
         likedFilmsByUser.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
     }
 
-
     public void removeLike(Long filmId, Long userId) throws NotFoundException {
         UserValidator.userIncorrectId(userId);
-        Set<Long> likedBy = likedFilmsByUser.getOrDefault(filmId, new HashSet<>());
-        if (likedBy.remove(userId)) {
-            likedFilmsByUser.put(filmId, likedBy);
-        } else {
-            throw new NotFoundException("Пользователь с id " + userId + " не ставил лайк фильму с id " + filmId);
+
+        likedFilmsByUser.computeIfPresent(filmId, (id, likedBy) -> {
+            if (likedBy.remove(userId)) {
+                return likedBy;
+            } else {
+                throw new NotFoundException("Пользователь с id " + userId + " не ставил лайк фильму с id " + filmId);
+            }
+        });
+
+        if (!likedFilmsByUser.containsKey(filmId)) {
+            throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
     }
 }

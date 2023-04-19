@@ -40,7 +40,6 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
         UserValidator.validate(updatedUser);
-        // userService.updateUser(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
         return userService.updateUser(updatedUser);
     }

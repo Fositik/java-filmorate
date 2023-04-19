@@ -17,8 +17,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User createUser(User newUser) throws ValidationException {
         List<User> existingUsers = new ArrayList<>(users.values());
+
         UserValidator.validateCreate(existingUsers, newUser);
         UserIdFactory.setUniqueUserId(newUser);
+
         users.put(newUser.getId(), newUser);
         return newUser;
     }
@@ -37,13 +39,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User remove(long id) {
-
         UserValidator.validateExist(new ArrayList<>(users.keySet()), id);
-        User removedUser = users.remove(id);
-//        Set<User> friends = userService.getFriends(id);
-//        // Удаляем пользователя из списка друзей его друга
-//        friends.forEach(friend -> getFriends(friend.getId()).remove(removedUser.getId()));
-        return removedUser;
+
+        return users.remove(id);
     }
 
 

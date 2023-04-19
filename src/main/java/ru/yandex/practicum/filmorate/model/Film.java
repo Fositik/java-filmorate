@@ -33,5 +33,4 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
-//    private List<Long> likedBy;
 }
