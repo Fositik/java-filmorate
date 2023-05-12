@@ -34,7 +34,7 @@ public class Film {
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
 
-    private Set<Genre> genres = new HashSet<>();
+  //  private Set<Genre> genres = new HashSet<>();
 //
 //    private RatingMPA mpa;
 }

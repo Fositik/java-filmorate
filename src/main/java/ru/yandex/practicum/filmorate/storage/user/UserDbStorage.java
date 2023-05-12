@@ -7,10 +7,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.FriendRequest;
+import ru.yandex.practicum.filmorate.model.FriendRequestStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -21,7 +25,6 @@ import java.util.Set;
 @Qualifier("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -112,18 +115,9 @@ public class UserDbStorage implements UserStorage {
         String sqlCreateFriendship = "INSERT INTO user_friends(" +
                 "user_id," +
                 "friend_id," +
-                "status_id)" +
-                "VALUES (?,?,DEFAULT)";
+                "status)" +
+                "VALUES (?,?,FALSE)";
         jdbcTemplate.update(sqlCreateFriendship, userId, friendId);
-    }
-
-    //Запрос обновляет статус дружбы между пользователями userId и friendId на подтвержденный (с status_id равным 1),
-    //только если текущий статус равен неподтвержденному (с status_id равным 2). Если пользователь friendId не подтвердил
-    //запрос на дружбу, то этот запрос не будет подтвержден.
-    public void confirmFriendship(Long userId, Long friendId) {
-        String sqlConfirmFriendship = "UPDATE user_friends SET status_id = 1 " +
-                "WHERE user_id = ? AND friend_id = ? AND status_id = 2";
-        jdbcTemplate.update(sqlConfirmFriendship, userId, friendId);
     }
 
     @Override

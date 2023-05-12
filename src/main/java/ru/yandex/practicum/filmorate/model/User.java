@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
@@ -14,6 +17,8 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class User {
     @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")
