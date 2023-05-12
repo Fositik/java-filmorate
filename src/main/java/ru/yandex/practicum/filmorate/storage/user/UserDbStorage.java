@@ -85,7 +85,7 @@ public class UserDbStorage implements UserStorage {
                 updatedUser.getName(),
                 updatedUser.getBirthday(),
                 updatedUser.getId());
-        
+
         return updatedUser;
     }
 
