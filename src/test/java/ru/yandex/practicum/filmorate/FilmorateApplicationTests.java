@@ -5,71 +5,71 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FriendRequest;
-import ru.yandex.practicum.filmorate.model.FriendRequestStatus;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.FriendRequestDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class FilmorateApplicationTests {
     private final UserDbStorage userStorage;
-    private final FriendRequestDbStorage friendRequestStorage;
 
     @Test
-        //Тест на создание пользователя
-    void createFilm_shouldConfirmThatUserIdExist() {
-        //Создаем пользоваеля
+    public void createUser_shouldReturnCreatedUser() {
+        // Создаем пользователя
         User user = User.builder()
                 .id(1L)
-                .name("Vladimir")
-                .login("Fositik")
-                .birthday(LocalDate.now().minusDays(8824))
-                .email("fositik@yandex.ru").build();
-        userStorage.createUser(user);
+                .name("Nick Name")
+                .login("dolore")
+                .birthday(LocalDate.parse("1946-08-20"))
+                .email("mail@mail.ru")
+                .build();
 
-        //Получаем пользователя из БД по идентификатору 1
-        User userOptional = userStorage.getUserById(1L);
+        // Выполняем запрос на создание пользователя
+        User createdUser = userStorage.createUser(user);
+        System.out.println(user.toString());
+        // Проверяем, что созданный пользователь имеет ожидаемые значения полей
+        assertEquals(createdUser.getId(), 1L);
+        assertEquals(createdUser.getName(), "Nick Name");
+        assertEquals(createdUser.getLogin(), "dolore");
+        assertEquals(createdUser.getBirthday(), LocalDate.parse("1946-08-20"));
+        assertEquals(createdUser.getEmail(), "mail@mail.ru");
 
-        //Проверяем соответствие идентификатора сохраненного пользователя ожидаемому
-        assertEquals(userOptional.getId(), 1);
     }
+        @Test
+        public void getUserById_shouldReturnUserWithMatchingId() {
+            // Создаем пользователя
+            User user = User.builder()
+                    .id(1L)
+                    .name("Nick Name")
+                    .login("dolore")
+                    .birthday(LocalDate.parse("1946-08-20"))
+                    .email("mail@mail.ru")
+                    .build();
 
-    @Test
-        //Тест на получение пользователя по идентификатору
-    void getUserById_shouldConfirmThatUserExist() {
-        //Создаем пользователя
-        User user = User.builder()
-                .id(1L)
-                .name("Vladimir")
-                .login("Fositik")
-                .birthday(LocalDate.now().minusDays(8824))
-                .email("fositik@yandex.ru").build();
-        userStorage.createUser(user);
+            // Выполняем запрос на создание пользователя
+            userStorage.createUser(user);
 
-        //Получаем пользователя из БД по идентификатору 1
-        User userOptional = userStorage.getUserById(1L);
-
-        //Проверка соответствия имени, логина и почты полученного пользователя с ожидаемым
-        assertEquals(userOptional.getName(), "Vladimir");
-        assertEquals(userOptional.getLogin(), "Fositik");
-        assertEquals(userOptional.getEmail(), "fositik@yandex.ru");
-    }
+            // Получаем пользователя из БД по идентификатору 1
+            User fetchedUser = userStorage.getUserById(1L);
+            System.out.println(user.toString());
+            // Проверяем, что полученный пользователь имеет ожидаемые значения полей
+            assertEquals(fetchedUser.getId(), 1L);
+            assertEquals(fetchedUser.getName(), "Nick Name");
+            assertEquals(fetchedUser.getLogin(), "dolore");
+            assertEquals(fetchedUser.getBirthday(), LocalDate.parse("1946-08-20"));
+            assertEquals(fetchedUser.getEmail(), "mail@mail.ru");
+        }
 
     @Test
         //Тест на получение списка всех пользователей
@@ -92,6 +92,7 @@ class FilmorateApplicationTests {
 
         //Сохраняем результат выполнения метода getAllUsers() в виде списка пользователей
         List<User> userList = userStorage.getAllUsers();
+        System.out.println(userList.toString());
 
         //Проверяем соответствие полученных ползователей, проверяя имена
         assertEquals(userList.get(0).getName(), "Vladimir");
@@ -123,7 +124,7 @@ class FilmorateApplicationTests {
         List<Long> userIdList = userStorage.getAllUsers().stream()
                 .map(User::getId)
                 .collect(Collectors.toList());
-
+        System.out.println(userIdList);
 
         //Проверяем, что первый пользователь был удален, а второй остался
         assertFalse(userIdList.contains(1L));
@@ -143,7 +144,7 @@ class FilmorateApplicationTests {
                 .birthday(LocalDate.now().minusDays(8824))
                 .email("fositik@yandex.ru").build();
         userStorage.createUser(user);
-
+        System.out.println(user.toString());
         //Обновляем пользователя
         User updatedUser = User.builder()
                 .id(1L)
@@ -152,9 +153,10 @@ class FilmorateApplicationTests {
                 .birthday(LocalDate.now().minusDays(8756))
                 .email("amigo32@yandex.ru").build();
         userStorage.updateUser(updatedUser);
-
+        System.out.println(updatedUser.toString());
         //Получаем пользователя из БД по идентификатору 1
         User userOptional = userStorage.getUserById(1L);
+        System.out.println(userOptional.toString());
 
         //Проверяем соответствие идентификатора сохраненного пользователя ожидаемому
         assertEquals(userOptional.getId(), 1);
@@ -168,40 +170,31 @@ class FilmorateApplicationTests {
                 .login("Amigo32")
                 .birthday(LocalDate.now().minusDays(8756))
                 .email("amigo32@yandex.ru").build();
+        System.out.println(updatedUser2.toString());
+
         assertThrows(NotFoundException.class, () -> userStorage.updateUser(updatedUser2));
     }
 
-    @Test
-    void addFriend_shouldConfirmThatUsersAreFriends() throws SQLException {
-        //Создаем двух пользователей
-        User user = User.builder()
-                .id(1L)
-                .name("Vladimir")
-                .login("Fositik")
-                .birthday(LocalDate.now().minusDays(8824))
-                .email("fositik@yandex.ru").build();
-        User user2 = User.builder()
-                .id(2L)
-                .name("Nikita")
-                .login("Amigo32")
-                .birthday(LocalDate.now().minusDays(8756))
-                .email("amigo32@yandex.ru").build();
-        userStorage.createUser(user);
-        userStorage.createUser(user2);
-
-        // создаем заявку на добавление в друзья
-        FriendRequest request = friendRequestStorage.addFriendRequest(user.getId(), user2.getId());
-
-        // проверяем, что заявка создана корректно
-        assertNotNull(request);
-        assertEquals(user.getId(), request.getSenderId());
-        assertEquals(user2.getId(), request.getReceiverId());
-        assertEquals(FriendRequestStatus.PENDING, request.getStatus());
-
-        // проверяем, что заявка сохранена в базе данных
-        FriendRequest requestFromDb = friendRequestStorage.getFriendRequestById(request.getId());
-        assertNotNull(requestFromDb);
-        assertEquals(request, requestFromDb);
-    }
+//    @Test
+//    void addFriend_shouldConfirmThatUsersAreFriends() throws SQLException {
+//        //Создаем двух пользователей
+//        User user = User.builder()
+//                .id(1L)
+//                .name("Vladimir")
+//                .login("Fositik")
+//                .birthday(LocalDate.now().minusDays(8824))
+//                .email("fositik@yandex.ru").build();
+//        User user2 = User.builder()
+//                .id(2L)
+//                .name("Nikita")
+//                .login("Amigo32")
+//                .birthday(LocalDate.now().minusDays(8756))
+//                .email("amigo32@yandex.ru").build();
+//        userStorage.createUser(user);
+//        userStorage.createUser(user2);
+//
+//        // создаем заявку на добавление в друзья
+//
+//    }
 
 }

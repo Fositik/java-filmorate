@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,7 +17,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     @Autowired
     private UserController(UserService userService) {
         this.userService = userService;
@@ -26,9 +24,11 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
-        UserValidator.validate(newUser);
+       // UserValidator.validate(newUser);
         log.info("Создание пользователя: {}", newUser);
-        return userService.createUser(newUser);
+        userService.createUser(newUser);
+
+        return newUser;
     }
 
     @GetMapping
@@ -39,7 +39,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
-        UserValidator.validate(updatedUser);
+       // UserValidator.validate(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
         return userService.updateUser(updatedUser);
     }

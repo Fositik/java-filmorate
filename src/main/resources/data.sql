@@ -1,5 +1,5 @@
 MERGE INTO genres (genre_id, genre_name)
-       KEY (genre_id, genre_name)
+
        VALUES
        (1, 'Комедия'),
        (2, 'Драма'),
@@ -9,7 +9,7 @@ MERGE INTO genres (genre_id, genre_name)
        (6, 'Боевик');
 
 MERGE INTO ratings (rating_id, rating_name)
-       KEY (rating_id, rating_name)
+
        VALUES
        (1, 'G'),
        (2, 'PG'),
