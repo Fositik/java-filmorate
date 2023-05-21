@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exceptions.CreateUserException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -38,37 +37,30 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User createUser(User newUser) throws ValidationException, CreateUserException {
         try {
-            // Проверяем наличие пользователей в БД, чтобы не создать пользователя с существующим email или login
-            String sql = "SELECT * FROM users WHERE email = ? OR login = ?";
-            List<User> existingUsers = jdbcTemplate.query(sql, userRowMapper, newUser.getEmail(), newUser.getLogin());
-
-            UserValidator.validateCreate(existingUsers, newUser);
-
-            // Проверяем правильность данных нового пользователя
-            UserValidator.validate(newUser);
-
             // Выполняем SQL-запрос для создания нового пользователя
-            sql = "INSERT INTO users (email, user_name, login, birthday) VALUES (?, ?, ?, ?)";
+           String sql = "INSERT INTO users (user_id, email, user_name, login, birthday) VALUES (DEFAULT, ?, ?, ?, ?)";
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            String finalSql = sql;
             jdbcTemplate.update(connection -> {
-                PreparedStatement stmt = connection.prepareStatement(finalSql, new String[]{"user_id"});
+                PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
                 stmt.setString(1, newUser.getEmail());
                 stmt.setString(2, newUser.getName());
                 stmt.setString(3, newUser.getLogin());
                 stmt.setDate(4, Date.valueOf(newUser.getBirthday()));
                 return stmt;
             }, keyHolder);
-            newUser.setId((keyHolder.getKey()).longValue());
+            Number key = keyHolder.getKey();
+            if (key == null) {
+                throw new CreateUserException("Ошибка при создании пользователя: не удалось получить id");
+            }
+            newUser.setId(key.longValue());
 
             // Возвращаем созданного пользователя
             return newUser;
         } catch (ValidationException e) {
             throw e; // перебросим исключение вверх, чтобы его обработали в другом месте
         } catch (Exception e) {
-            // логируем ошибку или обрабатываем исключение в другом месте
             throw new CreateUserException("Ошибка при создании пользователя");
         }
     }
@@ -79,21 +71,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sql, userRowMapper);
     }
 
-//    @Override
-//    public User getUserById(long id) throws NotFoundException {
-//        // Проверяем наличие пользователя в БД
-//        String sqlIdList = "SELECT user_id " +
-//                "FROM users " +
-//                "WHERE user_id = ?";
-//        List<Long> idList = jdbcTemplate.query(sqlIdList, (rs, rowNum) -> rs.getLong("user_id"), id);
-//        UserValidator.validateExist(idList, id);
-//
-//        // Получаем пользователя по его идентификатору
-//        String sql = "SELECT * " +
-//                "FROM users " +
-//                "WHERE user_id = ?";
-//        return jdbcTemplate.queryForObject(sql, new Object[]{id}, new UserRowMapper());
-//    }
     @Override
     public User getUserById(long id) throws NotFoundException {
         // Проверяем наличие пользователя в БД
@@ -107,12 +84,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User updatedUser) throws ValidationException, NotFoundException {
-        //Проверяем пользователя на наличие в БД
-        String sqlIdList = "SELECT user_id " +
-                "FROM users ";
-        List<Long> idList = jdbcTemplate.queryForList(sqlIdList, Long.class);
-        UserValidator.validateUpdate(idList, updatedUser);
-
         // Выполняем SQL-запрос для обновления пользователя
         String sql = "UPDATE users SET " +
                 "email = ?, " +
@@ -131,16 +102,8 @@ public class UserDbStorage implements UserStorage {
         return updatedUser;
     }
 
-
         @Override
     public User remove(long id) throws ValidationException, NotFoundException {
-        //Проверяем наличие пользователя в БД
-        String sqlIdList = "SELECT user_id " +
-                "FROM users " +
-                "WHERE user_id = ?";
-        List<Long> idList = jdbcTemplate.query(sqlIdList, (rs, rowNum) -> rs.getLong("user_id"), id);
-        UserValidator.validateExist(idList, id);
-
         //Выполняем SQL запрос на удаление пользователя из базы данных
         User removedUser = getUserById(id);
         String sql = "DELETE FROM users WHERE user_id = ?";
@@ -150,20 +113,9 @@ public class UserDbStorage implements UserStorage {
         return removedUser;
     }
 
-//    void sendFriendRequest(Long senderId, Long receiverId){
-//        String sql = "INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)";
-//        jdbcTemplate.update(sql,senderId,receiverId);
-//    }
-//
-//    void confirmFriendRequest(Long request_id){
-//        String sql = "UPDATE friend_requests INTO status =TRUE WHERE request_id = ?";
-//        jdbcTemplate.update(sql, request_id);
-//
-//    }
-
     @Override
     public void addFriend(Long userId, Long friendId) {
-        String sql = "INSERT INTO user_friends(user_id, friend_id, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO user_friends(friendship_id, user_id, friend_id, status) VALUES (DEFAULT, ?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
     }
 
@@ -185,24 +137,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Set<Long> getFriends(long userId) {
-        String sqlGetFriends = "SELECT * FROM user_friends " +
-                "WHERE user_id IN " +
-                " (SELECT friend_id FROM user_friends WHERE user_id = ? AND status = 'CONFIRMED')";
+        String sqlGetFriends = "SELECT friend_id FROM user_friends WHERE user_id = ? AND status = 'CONFIRMED'";
         List<Long> friendIds = jdbcTemplate.queryForList(sqlGetFriends, Long.class, userId);
         return new HashSet<>(friendIds);
     }
-//    private static class UserRowMapper implements RowMapper<User> {
-//        @Override
-//        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-//            User user = new User();
-//            user.setId(rs.getLong("user_id"));
-//            user.setLogin(rs.getString("login"));
-//            user.setName(rs.getString("user_name"));
-//            user.setBirthday(rs.getDate("birthday").toLocalDate());
-//            user.setEmail(rs.getString("email"));
-//            return user;
-//        }
-//    }
-
 }
 

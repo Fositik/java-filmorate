@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +24,11 @@ public class UserService {
     }
 
     public User createUser(User newUser) throws ValidationException {
-       return userStorage.createUser(newUser);
+        List<User> allUsers = new ArrayList<>(getAllUsers());
+        UserValidator.validateCreate(allUsers,newUser);
+        UserValidator.validate(newUser);
+        User createdUser = userStorage.createUser(newUser);
+        return createdUser;
     }
 
     public List<User> getAllUsers() {
@@ -34,48 +40,43 @@ public class UserService {
     }
 
     public User updateUser(User updatedUser) {
+        List<Long> allUserIds = getAllUsers()
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+        UserValidator.validateUpdate(allUserIds,updatedUser);
         return userStorage.updateUser(updatedUser);
     }
 
     public User remove(Long id) {
+        List<Long> allUserIds = getAllUsers()
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+        UserValidator.validateExist(allUserIds, id);
         return userStorage.remove(id);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-    //    userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).remove(friendId);
-    //    userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).remove(userId);
         userStorage.removeFriend(userId,friendId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
         return userStorage.getCommonFriends(userId,otherId).stream().map(this::getUserById).collect(Collectors.toList());
-    //  List<User> userFriends = getFriends(userId);
-    //  List<User> friendsOfOtherUser = getFriends(otherId);
-
-    //  return userFriends.stream()
-    //          .filter(friendsOfOtherUser::contains)
-    //          .collect(Collectors.toList());
     }
 
     public List<User> getFriends(Long userId) {
       return userStorage.getFriends(userId).stream().map(this::getUserById).collect(Collectors.toList());
-//        return userFriendIdsMap.getOrDefault(userId, new HashSet<>())
-//                .stream()
-//                .map(this::getUserById).filter(Objects::nonNull)
-//                .collect(Collectors.toList());
     }
 
     public void addFriend(Long userId, Long friendId) {
-        userStorage.addFriend(userId,friendId);
-//        List<Long> allUserIds = getAllUsers()
-//                .stream()
-//                .map(User::getId)
-//                .collect(Collectors.toList());
-//
-//        UserValidator.validateExist(allUserIds, friendId);
-//
-//        userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
-//        userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).add(userId);
+        List<Long> allUserIds = getAllUsers()
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+        UserValidator.validateExist(allUserIds, userId);
+        UserValidator.validateExist(allUserIds, friendId);
+        userStorage.addFriend(userId, friendId);
     }
 
 

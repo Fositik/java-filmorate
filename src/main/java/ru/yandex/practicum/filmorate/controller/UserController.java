@@ -24,11 +24,10 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User newUser) {
-       // UserValidator.validate(newUser);
         log.info("Создание пользователя: {}", newUser);
-        userService.createUser(newUser);
-
-        return newUser;
+        User createdUser = userService.createUser(newUser);
+        log.info("Пользователь создан: {}", createdUser);
+        return createdUser;
     }
 
     @GetMapping
