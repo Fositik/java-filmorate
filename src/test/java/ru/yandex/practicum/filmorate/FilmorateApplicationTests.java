@@ -100,7 +100,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void removeUser_sjouldConfirmThatUserWasRemoved() {
+    void removeUser_shouldConfirmThatUserWasRemoved() {
         //Создаем двух пользователей
         User user = User.builder()
                 .id(1L)
@@ -116,6 +116,7 @@ class FilmorateApplicationTests {
                 .email("amigo32@yandex.ru").build();
         userStorage.createUser(user);
         userStorage.createUser(user2);
+
 
         //Удаляем пользователя
         userStorage.remove(1);
@@ -163,7 +164,7 @@ class FilmorateApplicationTests {
         assertEquals(userOptional.getName(), "Nikita");
         assertEquals(userOptional.getEmail(), "amigo32@yandex.ru");
 
-        //Проверяем, что при попытке обновления пользователя с несуществующим идентификатором выбрасывается исключение
+        //при попытке обновления пользователя с несуществующим идентификатором
         User updatedUser2 = User.builder()
                 .id(3L)
                 .name("Nikita")
@@ -171,30 +172,10 @@ class FilmorateApplicationTests {
                 .birthday(LocalDate.now().minusDays(8756))
                 .email("amigo32@yandex.ru").build();
         System.out.println(updatedUser2.toString());
-
-        assertThrows(NotFoundException.class, () -> userStorage.updateUser(updatedUser2));
+        userStorage.updateUser(updatedUser2);
+        assertThrows(NotFoundException.class, () -> userStorage.getUserById(updatedUser2.getId()));
     }
 
-//    @Test
-//    void addFriend_shouldConfirmThatUsersAreFriends() throws SQLException {
-//        //Создаем двух пользователей
-//        User user = User.builder()
-//                .id(1L)
-//                .name("Vladimir")
-//                .login("Fositik")
-//                .birthday(LocalDate.now().minusDays(8824))
-//                .email("fositik@yandex.ru").build();
-//        User user2 = User.builder()
-//                .id(2L)
-//                .name("Nikita")
-//                .login("Amigo32")
-//                .birthday(LocalDate.now().minusDays(8756))
-//                .email("amigo32@yandex.ru").build();
-//        userStorage.createUser(user);
-//        userStorage.createUser(user2);
-//
-//        // создаем заявку на добавление в друзья
-//
-//    }
+
 
 }

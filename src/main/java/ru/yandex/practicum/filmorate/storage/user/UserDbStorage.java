@@ -21,7 +21,7 @@ import java.util.Set;
 
 @Repository
 @Qualifier("UserDbStorage")
-@RequiredArgsConstructor
+@RequiredArgsConstructor  //генерирует конструктор для всех полей класса, помеченных final или @NonNull
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -78,7 +78,7 @@ public class UserDbStorage implements UserStorage {
         try {
             return jdbcTemplate.queryForObject(sql, userRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("User not found with id: " + id);
+            throw new NotFoundException("Пользователь не найден, id: " + id);
         }
     }
 

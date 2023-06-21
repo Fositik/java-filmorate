@@ -1,11 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaStorage;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
@@ -13,85 +18,71 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FilmService {
 
     private final FilmStorage filmStorage;
     private final Map<Long, Set<Long>> likedFilmsByUser = new HashMap<>();
-    public UserService userService;
+    private UserService userService;
+    private GenreStorage genreStorage;
+    private RatingMpaStorage ratingMpaStorage;
+    private List<Genre> genres; // новое поле в классе Film
 
     //Мапа для хранения фильмов понравившихся пользователю <ID пользователя, Set<ID понравившихся фильмов>>
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
     public Film addFilm(Film film) throws ValidationException, NotFoundException {
-        filmStorage.addFilm(film);
-        likedFilmsByUser.computeIfAbsent(film.getId(), k -> new HashSet<>()).add(null);
-        return film;
+        return filmStorage.addFilm(film);
     }
 
     public Film updateFilm(Film updatedFilm) throws ValidationException, NotFoundException {
+        List<Film> filmList = getAllFilms();
+        List<Long> filmIds = filmList.stream().map(Film::getId).collect(Collectors.toList());
+
+        FilmValidator.validateExist(filmIds, updatedFilm.getId());
+        FilmValidator.validateUpdate(filmIds, updatedFilm);
+
         filmStorage.updateFilm(updatedFilm);
         return updatedFilm;
     }
 
-    public Film getFilmById(Long id) throws NotFoundException {
+
+    public Film getFilmById(Long id) {
+        List<Film> filmList = getAllFilms();
+        List<Long> filmIds = filmList.stream().map(Film::getId).collect(Collectors.toList());
+
+        FilmValidator.validateExist(filmIds, id);
         return filmStorage.getFilmById(id);
     }
 
     public List<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+        List<Film> films = filmStorage.getAllFilms();
+        return films;
     }
 
     public Set<Long> getFilmLikes(Long filmId) {
-        return likedFilmsByUser.values().stream()
-                .filter(likedFilms -> likedFilms != null && likedFilms.contains(filmId))
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+      return  filmStorage.getFilmLikes(filmId);
     }
 
     public List<Film> getTopFilms(Long count) {
-        List<Film> popular = likedFilmsByUser.keySet().stream()
-                .map(filmStorage::getFilmById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        log.info("Получение списка из топ {} фильмов", count);
 
-        if (popular.size() <= 1) {
-            return popular;
-        } else {
-            return popular.stream()
-                    .sorted((f1, f2) -> {
-                        int likes1 = likedFilmsByUser.getOrDefault(f1.getId(), Collections.emptySet()).size();
-                        int likes2 = likedFilmsByUser.getOrDefault(f2.getId(), Collections.emptySet()).size();
-                        return Integer.compare(likes2, likes1);
-                    })
-                    .limit(count)
-                    .collect(Collectors.toList());
-        }
+        return filmStorage.getTopFilms(count);
     }
+
 
     public void addLikeToFilm(Long filmId, Long userId) {
 
         Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
         FilmValidator.validateLike(likedBy, filmId);
-
-        likedFilmsByUser.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+        filmStorage.addLikeToFilm(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) throws NotFoundException {
         UserValidator.userIncorrectId(userId);
-
-        likedFilmsByUser.computeIfPresent(filmId, (id, likedBy) -> {
-            if (likedBy.remove(userId)) {
-                return likedBy;
-            } else {
-                throw new NotFoundException("Пользователь с id " + userId + " не ставил лайк фильму с id " + filmId);
-            }
-        });
-
-        if (!likedFilmsByUser.containsKey(filmId)) {
-            throw new NotFoundException("Фильм с id " + filmId + " не найден");
-        }
+        filmStorage.removeLike(filmId, userId);
     }
 }

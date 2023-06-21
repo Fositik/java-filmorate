@@ -1,18 +1,17 @@
-//package ru.yandex.practicum.filmorate.model;
-//
-//import lombok.*;
-//import org.springframework.stereotype.Service;
-//
-//import javax.validation.constraints.NotBlank;
-//import javax.validation.constraints.Positive;
-//
-//@Service
-//@Data
-////@NoArgsConstructor
-//@AllArgsConstructor
-//public class Genre {
-//    @Positive (message = "Идентификатор жанра не может быть отрицатнельным значением")
-//    private int id;
-//    @NotBlank (message = "Название жанра не может быть пустым")
-//    private String name;
-//}
+package ru.yandex.practicum.filmorate.model;
+
+import lombok.*;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Genre {
+
+    private int id;
+
+    private String name;
+
+    public  Genre (int id){
+        this.id = id;
+    }
+}
