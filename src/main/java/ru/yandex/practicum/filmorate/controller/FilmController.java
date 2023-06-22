@@ -45,17 +45,15 @@ public class FilmController {
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Получение списка всех фильмов");
-        List<Film> films = filmService.getAllFilms();
 
-        return films;
+        return filmService.getAllFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable(name = "id") Long id) throws NotFoundException {
         log.info("Получение фильма с id={}", id);
-        Film film = filmService.getFilmById(id);
 
-        return film;
+        return filmService.getFilmById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -76,7 +74,6 @@ public class FilmController {
     public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Long count) {
         log.info("Получение списка из топ {} фильмов", count);
 
-        List<Film> filmsRating = filmService.getTopFilms(count);
-        return filmsRating;
+        return filmService.getTopFilms(count);
     }
 }

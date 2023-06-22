@@ -1,18 +1,15 @@
-
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.CreateUserException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -23,10 +20,7 @@ import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @Qualifier("FilmDbStorage")
@@ -135,7 +129,9 @@ public class FilmDbStorage implements FilmStorage {
         try {
             Film film = jdbcTemplate.queryForObject(sql, filmRowMapper, id);
             List<Genre> genres = genreStorage.getGenresByFilmId(id);
-            film.setGenres(genres);
+            if (film != null) {
+                film.setGenres(genres);
+            }
             System.out.println(genres.toString());
             return film;
         } catch (EmptyResultDataAccessException e) {
@@ -255,6 +251,29 @@ public class FilmDbStorage implements FilmStorage {
             jdbcTemplate.batchUpdate(insertSql, batchArgs);
         }
     }
+
+    @Override
+    public void removeFilm(Long id) throws NotFoundException {
+        try {
+            // Удаляем связанные записи из таблицы film_genres
+            String deleteGenresSql = "DELETE FROM film_genres WHERE film_id = ?";
+            jdbcTemplate.update(deleteGenresSql, id);
+
+            // Удаляем связанные записи из таблицы film_user_likes
+            String deleteLikesSql = "DELETE FROM film_user_likes WHERE film_id = ?";
+            jdbcTemplate.update(deleteLikesSql, id);
+
+            // Затем удаляем сам фильм из таблицы films
+            String deleteFilmSql = "DELETE FROM films WHERE film_id = ?";
+            int rowsAffected = jdbcTemplate.update(deleteFilmSql, id);
+            if (rowsAffected == 0) {
+                throw new NotFoundException("Film not found");
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new NotFoundException("Film not found");
+        }
+    }
+
 
 }
 

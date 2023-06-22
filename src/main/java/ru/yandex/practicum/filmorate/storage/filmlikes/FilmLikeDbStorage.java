@@ -10,13 +10,14 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class FilmLikeDbStorage implements FilmLikeStorage{
+public class FilmLikeDbStorage implements FilmLikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmLikeDbStorage (JdbcTemplate jdbcTemplate){
+    public FilmLikeDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     @Override
     public void addLike(long filmId, long userId, int rate) throws NotFoundException {
         String sql = "INSERT INTO film_user_likes (film_id, user_id) VALUES (?, ?)";

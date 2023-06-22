@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-   // private final Map<Long, Set<Long>> userFriendIdsMap = new HashMap<>();
+    // private final Map<Long, Set<Long>> userFriendIdsMap = new HashMap<>();
 
     @Autowired
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
@@ -25,10 +25,9 @@ public class UserService {
 
     public User createUser(User newUser) throws ValidationException {
         List<User> allUsers = new ArrayList<>(getAllUsers());
-        UserValidator.validateCreate(allUsers,newUser);
+        UserValidator.validateCreate(allUsers, newUser);
         UserValidator.validate(newUser);
-        User createdUser = userStorage.createUser(newUser);
-        return createdUser;
+        return userStorage.createUser(newUser);
     }
 
     public List<User> getAllUsers() {
@@ -44,29 +43,29 @@ public class UserService {
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toList());
-        UserValidator.validateUpdate(allUserIds,updatedUser);
+        UserValidator.validateUpdate(allUserIds, updatedUser);
         return userStorage.updateUser(updatedUser);
     }
 
-    public User remove(Long id) {
+    public void remove(Long id) {
         List<Long> allUserIds = getAllUsers()
                 .stream()
                 .map(User::getId)
                 .collect(Collectors.toList());
         UserValidator.validateExist(allUserIds, id);
-        return userStorage.remove(id);
+        userStorage.remove(id);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        userStorage.removeFriend(userId,friendId);
+        userStorage.removeFriend(userId, friendId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        return userStorage.getCommonFriends(userId,otherId).stream().map(this::getUserById).collect(Collectors.toList());
+        return userStorage.getCommonFriends(userId, otherId).stream().map(this::getUserById).collect(Collectors.toList());
     }
 
     public List<User> getFriends(Long userId) {
-      return userStorage.getFriends(userId).stream().map(this::getUserById).collect(Collectors.toList());
+        return userStorage.getFriends(userId).stream().map(this::getUserById).collect(Collectors.toList());
     }
 
     public void addFriend(Long userId, Long friendId) {

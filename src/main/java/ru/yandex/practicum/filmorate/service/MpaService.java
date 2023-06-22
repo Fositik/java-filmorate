@@ -24,6 +24,7 @@ public class MpaService {
     public List<RatingMPA> getAllRatings() {
         return ratingMpaStorage.getAllRatings();
     }
+
     private void validateMpaId(int mpaId) {
         if (mpaId <= 0 || mpaId > getAllRatings().size()) {
             throw new NotFoundException("Invalid genre ID: " + mpaId);

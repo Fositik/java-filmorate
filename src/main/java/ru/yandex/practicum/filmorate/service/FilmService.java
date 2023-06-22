@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaStorage;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
 import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
@@ -20,25 +17,26 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FilmService {
-
     private final FilmStorage filmStorage;
-    private final Map<Long, Set<Long>> likedFilmsByUser = new HashMap<>();
-    private UserService userService;
-    private GenreStorage genreStorage;
-    private RatingMpaStorage ratingMpaStorage;
-    private List<Genre> genres; // новое поле в классе Film
 
-    //Мапа для хранения фильмов понравившихся пользователю <ID пользователя, Set<ID понравившихся фильмов>>
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
     public Film addFilm(Film film) throws ValidationException, NotFoundException {
-        return filmStorage.addFilm(film);
+        List<Film> filmList = getAllFilms();
+        List<Long> filmIds = filmList.stream().map(Film::getId).collect(Collectors.toList());
+
+        FilmValidator.validateFilm(film);
+
+        Film createdFilm = filmStorage.addFilm(film);
+
+        FilmValidator.validateCreate(filmIds, createdFilm);
+        return createdFilm;
     }
 
-    public Film updateFilm(Film updatedFilm) throws ValidationException, NotFoundException {
+    public void updateFilm(Film updatedFilm) throws ValidationException, NotFoundException {
         List<Film> filmList = getAllFilms();
         List<Long> filmIds = filmList.stream().map(Film::getId).collect(Collectors.toList());
 
@@ -46,7 +44,6 @@ public class FilmService {
         FilmValidator.validateUpdate(filmIds, updatedFilm);
 
         filmStorage.updateFilm(updatedFilm);
-        return updatedFilm;
     }
 
 
@@ -59,12 +56,11 @@ public class FilmService {
     }
 
     public List<Film> getAllFilms() {
-        List<Film> films = filmStorage.getAllFilms();
-        return films;
+        return filmStorage.getAllFilms();
     }
 
     public Set<Long> getFilmLikes(Long filmId) {
-      return  filmStorage.getFilmLikes(filmId);
+        return filmStorage.getFilmLikes(filmId);
     }
 
     public List<Film> getTopFilms(Long count) {
@@ -75,8 +71,7 @@ public class FilmService {
 
 
     public void addLikeToFilm(Long filmId, Long userId) {
-
-        Set<Long> likedBy = likedFilmsByUser.getOrDefault(userId, new HashSet<>());
+        Set<Long> likedBy = getFilmLikes(filmId);
         FilmValidator.validateLike(likedBy, filmId);
         filmStorage.addLikeToFilm(filmId, userId);
     }
@@ -84,5 +79,14 @@ public class FilmService {
     public void removeLike(Long filmId, Long userId) throws NotFoundException {
         UserValidator.userIncorrectId(userId);
         filmStorage.removeLike(filmId, userId);
+    }
+
+    public void removeFilm(Long id) throws NotFoundException {
+        List<Film> filmList = getAllFilms();
+        List<Long> filmIds = filmList.stream().map(Film::getId).collect(Collectors.toList());
+
+        FilmValidator.validateExist(filmIds, id);
+
+        filmStorage.removeFilm(id);
     }
 }

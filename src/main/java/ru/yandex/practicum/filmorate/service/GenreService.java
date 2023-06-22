@@ -30,4 +30,8 @@ public class GenreService {
             throw new NotFoundException("Invalid genre ID: " + genreId);
         }
     }
+
+    public List<Genre> getGenresByFilmId(Long filmId) {
+        return genreStorage.getGenresByFilmId(filmId);
+    }
 }
