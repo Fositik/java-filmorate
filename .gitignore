@@ -19,22 +19,30 @@ db_diagram.pdf
 ### IntelliJ IDEA ###
 .idea
 *.iws
+.iws
 *.iml
+.iml
 *.ipr
+.ipr
 
 mvnw.cmd
 mvnw
+mvn
 checkstyle.xml
 lombok.config
 suppressions.xml
+api-tests.yml
 .mvn
 out/
-target
 *.db
+.db
 *.log
+.log
 *.class
 *.jar
+.jar
 *.DS_Store
+.DS_Store
 
 ### NetBeans ###
 /nbproject/private/
