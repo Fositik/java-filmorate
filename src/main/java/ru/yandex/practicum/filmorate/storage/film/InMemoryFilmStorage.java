@@ -67,4 +67,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    @Override
+    public void removeFilm(Long id) {
+
+    }
+
 }
