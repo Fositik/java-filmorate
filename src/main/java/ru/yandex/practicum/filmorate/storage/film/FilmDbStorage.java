@@ -78,10 +78,7 @@ public class FilmDbStorage implements FilmStorage {
                     prSt.setString(1, film.getName());
                     prSt.setString(2, film.getDescription());
                     prSt.setDate(3, java.sql.Date.valueOf(film.getReleaseDate()));
-
                     prSt.setLong(4, film.getDuration());
-
-                    //   prSt.setLong(5, filmDto.getRate() == null ? 0 : filmDto.getRate());
                     prSt.setLong(5, film.getMpa().getId());
                     return prSt;
                 }, keyHolder);
