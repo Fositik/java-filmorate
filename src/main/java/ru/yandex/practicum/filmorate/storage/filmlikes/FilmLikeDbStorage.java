@@ -35,8 +35,8 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
         try {
             int deletedRows = jdbcTemplate.update(sql, filmId, userId);
             if (deletedRows == 0) {
-                throw new NotFoundException(String.format
-                        ("Лайк от пользователя %d к фильму %d не найден", userId, filmId)
+                throw new NotFoundException(String.format(
+                        "Лайк от пользователя %d к фильму %d не найден", userId, filmId)
                 );
             }
         } catch (Exception e) {
