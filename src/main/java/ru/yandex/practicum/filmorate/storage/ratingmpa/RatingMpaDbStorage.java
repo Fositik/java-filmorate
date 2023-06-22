@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.RatingMPA;
 import java.util.List;
 
 @Repository
-//@Qualifier("RatingMpaDbStorage")
 @Slf4j
 public class RatingMpaDbStorage implements RatingMpaStorage {
     private final JdbcTemplate jdbcTemplate;

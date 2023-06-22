@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 import java.util.*;
 
 
-//@Component
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
