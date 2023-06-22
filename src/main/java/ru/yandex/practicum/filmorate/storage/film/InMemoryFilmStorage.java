@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.util.idfactory.FilmIdFactory;
 import ru.yandex.practicum.filmorate.util.validators.FilmValidator;
 
@@ -64,6 +65,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getTopFilms(Long count) {
         return null;
+    }
+
+    @Override
+    public void removeFilm(Long id) {
+
     }
 
 }
