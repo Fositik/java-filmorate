@@ -31,9 +31,8 @@ public class UserValidator {
 
     public static void validateCreate(List<User> existingUsers, User createdUser) throws ValidationException {
         if (createdUser.getId() != null) {
-            if (existingUsers.stream().anyMatch(u -> u.getId().equals(createdUser.getId()))) {
+            if (existingUsers.stream().anyMatch(u -> u.getId().equals(createdUser.getId())))
                 throw new ValidationException("Пользователь уже существует");
-            }
             if (existingUsers.stream().anyMatch(u -> u.getEmail().equals(createdUser.getEmail()))) {
                 throw new ValidationException("Пользователь с таким email уже существует");
             }

@@ -12,13 +12,13 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
+.github/
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
-
+*.db
 mvnw.cmd
 mvnw
 checkstyle.xml

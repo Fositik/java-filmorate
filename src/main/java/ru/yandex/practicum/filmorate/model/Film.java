@@ -7,15 +7,14 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Film {
-    @NotNull
+
     private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
@@ -34,7 +33,7 @@ public class Film {
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
 
-    private Set<Genre> genres = new HashSet<>();
-//
-//    private RatingMPA mpa;
+    private List<Genre> genres;
+
+    private RatingMPA mpa;
 }

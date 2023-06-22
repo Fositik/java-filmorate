@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -11,11 +12,11 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    User getUserById(long id);
+    User getUserById(long id) throws NotFoundException;
 
-    User updateUser(User updatedUser);
+    User updateUser(User updatedUser) throws ValidationException, NotFoundException;
 
-    User remove(long id);
+    User remove(long id) throws ValidationException, NotFoundException;
 
     void addFriend(Long userId, Long friendId);
 
