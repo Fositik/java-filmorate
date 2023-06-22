@@ -34,11 +34,12 @@ public class UserDbStorage implements UserStorage {
         user.setBirthday(rs.getDate("birthday").toLocalDate());
         return user;
     };
+
     @Override
     public User createUser(User newUser) throws ValidationException, CreateUserException {
         try {
             // Выполняем SQL-запрос для создания нового пользователя
-           String sql = "INSERT INTO users (user_id, email, user_name, login, birthday) VALUES (DEFAULT, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (user_id, email, user_name, login, birthday) VALUES (DEFAULT, ?, ?, ?, ?)";
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -102,7 +103,7 @@ public class UserDbStorage implements UserStorage {
         return updatedUser;
     }
 
-        @Override
+    @Override
     public User remove(long id) throws ValidationException, NotFoundException {
         //Выполняем SQL запрос на удаление пользователя из базы данных
         User removedUser = getUserById(id);

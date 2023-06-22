@@ -46,8 +46,13 @@ class FilmorateApplicationTests {
                 .build();
     }
 
-    private Film createFilm(Long id, String name, String description, LocalDate releaseDate
-            , Integer duration, List<Genre> genres, RatingMPA mpa) {
+    private Film createFilm(Long id,
+                            String name,
+                            String description,
+                            LocalDate releaseDate,
+                            Integer duration,
+                            List<Genre> genres,
+                            RatingMPA mpa) {
         return Film.builder()
                 .id(id)
                 .name(name)
@@ -57,15 +62,13 @@ class FilmorateApplicationTests {
                 .genres(genres)
                 .mpa(mpa)
                 .build();
-
-
     }
 
     @Test
     public void createUser_shouldReturnCreatedUser() {
         // Создаем пользователя
-        User createdUser = createUser(1L, "Nick Name", "dolore"
-                , LocalDate.parse("1946-08-20"), "mail@mail.ru");
+        User createdUser = createUser(1L, "Nick Name", "dolore",
+                LocalDate.parse("1946-08-20"), "mail@mail.ru");
         userService.createUser(createdUser);
 
         // Проверяем, что созданный пользователь имеет ожидаемые значения полей
@@ -78,16 +81,16 @@ class FilmorateApplicationTests {
 
     @Test
     public void createUser_shouldReturnValidationException() {
-        User createdUser = createUser(1L, "", "dolore"
-                , LocalDate.parse("1946-08-20"), "mail.mail.ru");
+        User createdUser = createUser(1L, "", "dolore",
+                LocalDate.parse("1946-08-20"), "mail.mail.ru");
         assertThrows(ValidationException.class, () -> userService.createUser(createdUser));
     }
 
     @Test
     public void getUserById_shouldReturnUserWithMatchingId() {
         // Создаем пользователя
-        User createdUser = createUser(1L, "Nick Name", "dolore"
-                , LocalDate.parse("1946-08-20"), "mail@mail.ru");
+        User createdUser = createUser(1L, "Nick Name", "dolore",
+                LocalDate.parse("1946-08-20"), "mail@mail.ru");
         userService.createUser(createdUser);
 
         // Получаем пользователя из БД по идентификатору 1
@@ -106,12 +109,12 @@ class FilmorateApplicationTests {
         //Тест на получение списка всех пользователей
     void getAllUsers_shouldReturnListWithAllUsers() {
         //Создаем двух пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User user2 = createUser(2L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User user2 = createUser(2L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
 
         //Сохраняем результат выполнения метода getAllUsers() в виде списка пользователей
@@ -126,12 +129,12 @@ class FilmorateApplicationTests {
     @Test
     void removeUser_shouldConfirmThatUserWasRemoved() {
         //Создаем двух пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User user2 = createUser(2L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User user2 = createUser(2L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
 
         //Удаляем пользователя
@@ -154,12 +157,12 @@ class FilmorateApplicationTests {
     @Test
     void updateUser_shouldConfirmThatUserWasUpdated() {
         //Создаем двух пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User updatedUser = createUser(1L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User updatedUser = createUser(1L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
 
         userService.updateUser(updatedUser);
         System.out.println(updatedUser.toString());
@@ -186,12 +189,12 @@ class FilmorateApplicationTests {
     @Test
     void friendship_shouldConfirmThatUserIsFriendByUser2() {
         //Создаем двух пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User user2 = createUser(2L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User user2 = createUser(2L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
 
         //Добавляем пользователя 2 в друзья
@@ -209,12 +212,12 @@ class FilmorateApplicationTests {
     @Test
     void friendship_shouldConfirmThatFriendWasRemoved() {
         //Создаем двух пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User user2 = createUser(2L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User user2 = createUser(2L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
 
         //Добавляем пользователя 2 в друзья
@@ -233,16 +236,16 @@ class FilmorateApplicationTests {
     @Test
     void friendship_shouldReturnCommonFriends() {
         //Создаем пользователей
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        User user2 = createUser(2L, "Nikita", "Amigo32"
-                , LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
+        User user2 = createUser(2L, "Nikita", "Amigo32",
+                LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
 
-        User user3 = createUser(0L, "Sergey", "Gey32"
-                , LocalDate.now().minusDays(8456), "ahegaoo32@yandex.ru");
+        User user3 = createUser(0L, "Sergey", "Gey32",
+                LocalDate.now().minusDays(8456), "ahegaoo32@yandex.ru");
         userService.createUser(user3);
 
         //add friendships
@@ -260,8 +263,8 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
 
         // Проверяем, что созданный фильм имеет ожидаемые значения полей
@@ -281,8 +284,8 @@ class FilmorateApplicationTests {
         Genre g1 = new Genre(1);
         Genre genre = genreService.getGenreById(2);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now().minusYears(300), 120, List.of(g1, genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now().minusYears(300), 120, List.of(g1, genre), mpa);
 
         assertThrows(ValidationException.class, () -> filmService.addFilm(createdFilm));
     }
@@ -292,15 +295,15 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
         //Update film
         Genre genre2 = genreService.getGenreById(2);
-        Film updatedFilm = createFilm(1L, "Upd Film", "Upd film description"
-                , LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+        Film updatedFilm = createFilm(1L, "Upd Film", "Upd film description",
+                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
         filmService.updateFilm(updatedFilm);
 
         //Create optional Film object
@@ -318,8 +321,8 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = new RatingMPA(1);
         Genre genre2 = genreService.getGenreById(2);
-        Film updatedFilm = createFilm(9999L, "Upd Film", "Upd film description"
-                , LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+        Film updatedFilm = createFilm(9999L, "Upd Film", "Upd film description",
+                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
 
         //Check
         assertThrows(NotFoundException.class, () -> filmService.updateFilm(updatedFilm));
@@ -330,8 +333,8 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -346,8 +349,8 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -359,15 +362,15 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
         //Second film
         Genre genre2 = genreService.getGenreById(2);
-        Film film2 = createFilm(2L, "Upd Film", "Upd film description"
-                , LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+        Film film2 = createFilm(2L, "Upd Film", "Upd film description",
+                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
         filmService.addFilm(film2);
 
         List<Film> optionalFilmsList = filmService.getAllFilms();
@@ -381,8 +384,8 @@ class FilmorateApplicationTests {
         Genre g1 = new Genre(1);
         Genre genre = genreService.getGenreById(2);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(g1, genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(g1, genre), mpa);
         filmService.addFilm(createdFilm);
 
         List<Genre> createdGenresList = new ArrayList<>();
@@ -400,13 +403,13 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
         filmService.addLikeToFilm(createdFilm.getId(), user.getId());
@@ -419,14 +422,14 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
         //Create user
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
         //Add like to film
@@ -447,8 +450,8 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -461,20 +464,20 @@ class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre), mpa);
+        Film createdFilm = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
         // Создаем фильм
         Genre genre2 = genreService.getGenreById(2);
         RatingMPA mpa2 = mpaService.getRatingMpaById(2);
-        Film createdFilm2 = createFilm(1L, "New Film", "New film description"
-                , LocalDate.now(), 120, List.of(genre2, genre), mpa2);
+        Film createdFilm2 = createFilm(1L, "New Film", "New film description",
+                LocalDate.now(), 120, List.of(genre2, genre), mpa2);
         filmService.addFilm(createdFilm2);
 
         //Create user
-        User user = createUser(1L, "Vladimir", "Foiik"
-                , LocalDate.now().minusDays(8824), "foiik@yandex.ru");
+        User user = createUser(1L, "Vladimir", "Foiik",
+                LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
         //Add like to film

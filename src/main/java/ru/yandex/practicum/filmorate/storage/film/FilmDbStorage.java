@@ -74,8 +74,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement prSt = connection.prepareStatement(
-                            sql
-                            , new String[]{"film_id"});
+                            sql, new String[]{"film_id"});
                     prSt.setString(1, film.getName());
                     prSt.setString(2, film.getDescription());
                     prSt.setDate(3, java.sql.Date.valueOf(film.getReleaseDate()));
@@ -85,8 +84,7 @@ public class FilmDbStorage implements FilmStorage {
                     //   prSt.setLong(5, filmDto.getRate() == null ? 0 : filmDto.getRate());
                     prSt.setLong(5, film.getMpa().getId());
                     return prSt;
-                }
-                , keyHolder);
+                }, keyHolder);
 
         updateMpaRating(film);
         updateGenresNameById(film);

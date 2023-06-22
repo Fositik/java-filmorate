@@ -17,8 +17,8 @@ public class GenreDbStorage implements GenreStorage {
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.genreRowMapper = (rs, rowNum) -> new Genre(rs.getInt("genre_id")
-                , rs.getString("genre_name"));
+        this.genreRowMapper = (rs, rowNum) -> new Genre(rs
+                .getInt("genre_id"), rs.getString("genre_name"));
     }
 
     @Override
