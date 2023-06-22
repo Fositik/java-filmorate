@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Data
 public class Film {
     @NotNull
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
     //Аннотация @NotBlank указывает, что поле не может быть пустым

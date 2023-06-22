@@ -1,92 +1,76 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
 
-    private List<User> users = new ArrayList<>();
-    private int nextId = 1;
-    //На просторах интернета наткнулся на паттерн для проверки корректности ввода Email
-    private static final Pattern rfc2822 = Pattern.compile("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
+    private final UserService userService;
 
-    /**
-     * Добавляет нового пользователя
-     *
-     * @param newUser объект User {@link User}, который содержит данные пользователя
-     * @return возвращает объект User
-     */
-    @PostMapping
-    public User createUser(@Valid @RequestBody User newUser) {
-        log.info("Создание пользователя: {}", newUser);
-        validate(newUser);
-        newUser.setId(nextId++);
-        users.add(newUser);
-        return newUser;
+
+    @Autowired
+    private UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    /**
-     * Возвращает список всех пользователей
-     *
-     * @return
-     */
+    @PostMapping
+    public User createUser(@Valid @RequestBody User newUser) {
+        UserValidator.validate(newUser);
+        log.info("Создание пользователя: {}", newUser);
+        return userService.createUser(newUser);
+    }
+
     @GetMapping
     public List<User> getAllUsers() {
         log.info("Получение списка всех пользователей");
-        return users;
+        return userService.getAllUsers();
     }
 
-    /**
-     * * Обновляет данные фильма
-     * * @param updatedUser объект User {@link User}, который содержит данные обновленного пользователя
-     * * @return User, содержащий обновленный фильм
-     * * @throws ValidationException если форма обновления пользователя заполнена неправильно или пользователь с указанным id не найден
-     */
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
-        validate(updatedUser);
+        UserValidator.validate(updatedUser);
         log.info("Обновление пользователя с id={}: {}", updatedUser.getId(), updatedUser);
-        User userToUpdate = users.stream().filter(u -> u.getId() == updatedUser.getId()).findFirst()
-                .orElseThrow(() -> new ValidationException("Пользователь с id=" + updatedUser.getId() + " не найден"));
-        userToUpdate.setEmail(updatedUser.getEmail());
-        userToUpdate.setLogin(updatedUser.getLogin());
-        userToUpdate.setName(updatedUser.getName());
-        userToUpdate.setBirthday(updatedUser.getBirthday());
-        return userToUpdate;
+        return userService.updateUser(updatedUser);
     }
 
-    /**
-     * Метод проверяет соответствие данных пользователя следующим условиям:
-     * - Имя пользователя не может быть пустым.
-     * -- Если имя пользователя отсутствует, то оно будет соответствовать логину.
-     * - Дата рождения пользователя не может быть позже настоящего момента времени.
-     *
-     * @param user объект User {@link User}, который содержит данные проверяемого на соответствие условиям пользователя
-     */
-    private void validate(User user) {
-        if (user.getBirthday().isAfter(LocalDate.now())
-        ) {
-            log.debug("Дата рождения не может быть в будущем.");
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        } else if (!rfc2822.matcher(user.getEmail()).matches()) {
-            log.debug("Электронная почта не может быть пустой и должна содержать символ @.");
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Поле 'name' отсутствует. " +
-                    "Так как поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
-            user.setName(user.getLogin());
-        }
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") long id) {
+        log.info("Получение пользователя с id={}", id);
+        return userService.getUserById(id);
     }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable(name = "id") Long id, @PathVariable(name = "friendId") Long friendId) {
+        log.info("Добавление пользователем с id={} в друзья: пользователя с id={}", id, friendId);
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable(name = "id") long id, @PathVariable(name = "friendId") long friendId) {
+        log.info("Удаление пользователем с id={} из друзей: пользователя с id={}", id, friendId);
+        userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable(name = "id") long id, @PathVariable(name = "otherId") long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable(name = "id") long id) throws NotFoundException {
+        return userService.getFriends(id);
+    }
+
+
 }
