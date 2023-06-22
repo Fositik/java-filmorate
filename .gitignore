@@ -26,6 +26,10 @@ checkstyle.xml
 lombok.config
 suppressions.xml
 .mvn
+out/
+target
+*.db
+*.log
 *.class
 *.jar
 *.DS_Store
