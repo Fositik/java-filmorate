@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 db_diagram.png
+db_diagram.pdf
 
 ### STS ###
 .apt_generated
@@ -13,6 +14,7 @@ db_diagram.png
 .settings
 .springBeans
 .sts4-cache
+*.pdf
 
 ### IntelliJ IDEA ###
 .idea
