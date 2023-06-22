@@ -13,20 +13,21 @@ import java.time.LocalDate;
 @Data
 @Builder(toBuilder = true)
 public class User {
-    @NotNull
-    private Integer id;
+
+    private Long id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Email(message = "Некорректный формат электронной почты")
     //Аннотация @Email проверяет, что поле содержит корректный адрес электронной почты
     private String email;
 
+    private String name;
+
     @NotBlank(message = "Логин не может быть пустым")
     @Pattern(regexp = "\\S+", message = "Логин не может содержать пробелы")
     //Аннотация @Pattern проверяет, что поле не содержит пробелов.
     private String login;
 
-    private String name;
 
     @NotNull
     @Past(message = "Дата рождения не может быть в будущем")
