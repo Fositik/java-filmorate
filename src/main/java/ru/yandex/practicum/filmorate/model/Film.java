@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Builder(toBuilder = true)
@@ -21,19 +22,19 @@ public class Film {
     //Аннотация @NotBlank указывает, что поле не может быть пустым
     private String name;
 
-    @Size(max = 200, message = "Описание не может быть длиннее 200 символов")
+    @NotNull @Size(max = 200, message = "Описание не может быть длиннее 200 символов")
     // Аннотация @Size указывает максимальную длину поля.
     private String description;
 
-    @NotNull @PastOrPresent(message = "Дата релиза не может быть в будущем")
-    // Аннотация @PastOrPresent указывает, что дата должна быть не раньше текущей даты
+    @NotNull
     private LocalDate releaseDate;
 
     @NotNull @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
 
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;
 
+    @NotNull
     private RatingMPA mpa;
 }

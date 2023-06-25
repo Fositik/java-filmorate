@@ -25,8 +25,10 @@ public class GenreDbStorage implements GenreStorage {
     public Genre getGenreById(int genreId) {
         String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
         try {
+            log.info("Получение RatingMPA под id: {}", genreId);
             return jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
         } catch (EmptyResultDataAccessException e) {
+            log.info("Жанр под id: {} не найден", genreId);
             return null;
         }
     }
@@ -34,6 +36,7 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> getAllGenres() {
         String sqlQuery = "SELECT * FROM genres";
+        log.info("Получение списка всех жанров");
         return jdbcTemplate.query(sqlQuery, genreRowMapper);
     }
 
@@ -47,7 +50,7 @@ public class GenreDbStorage implements GenreStorage {
             String name = rs.getString("genre_name");
             return new Genre(id, name);
         }, filmId);
-        log.info("Retrieved Genres: " + genres);
+        log.info("Retrieved Genres: {}", genres);
         return genres;
     }
 }

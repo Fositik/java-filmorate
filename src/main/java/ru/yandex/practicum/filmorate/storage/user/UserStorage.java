@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserStorage {
-    User createUser(User newUser) throws ValidationException;
+    User createUser(User newUser);
 
     List<User> getAllUsers();
 
-    User getUserById(long id) throws NotFoundException;
+    User getUserById(long id);
 
-    User updateUser(User updatedUser) throws ValidationException, NotFoundException;
+    User updateUser(User updatedUser);
 
-    User remove(long id) throws ValidationException, NotFoundException;
+    User remove(long id);
 
     void addFriend(Long userId, Long friendId);
 

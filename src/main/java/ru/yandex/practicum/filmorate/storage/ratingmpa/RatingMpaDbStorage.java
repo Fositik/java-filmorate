@@ -17,23 +17,24 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
 
     public RatingMpaDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.ratingMPARowMapper = (rs, rowNum) -> new RatingMPA(rs.getInt("rating_id"), rs.getString("rating_name"));
+        this.ratingMPARowMapper = (rs, rowNum) -> new RatingMPA(rs
+                .getInt("rating_id"), rs.getString("rating_name"));
     }
 
     public RatingMPA getRatingMpaById(int ratingId) {
         String sqlQuery = "SELECT * FROM ratings WHERE rating_id = ?";
         try {
-            RatingMPA ratingMPA = jdbcTemplate.queryForObject(sqlQuery, new Object[]{ratingId}, ratingMPARowMapper);
-            log.info("Retrieved RatingMPA: " + ratingMPA);
-            return ratingMPA;
+            log.info("Получение RatingMPA под id: {}", ratingId);
+            return jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
         } catch (EmptyResultDataAccessException e) {
-            log.error("No RatingMPA found for id: " + ratingId);
+            log.error("No RatingMPA found for id: {}", ratingId);
             return null;
         }
     }
 
     public List<RatingMPA> getAllRatings() {
         String sqlQuery = "SELECT * FROM ratings";
+        log.info("Получение списка всех RatingMPA");
         return jdbcTemplate.query(sqlQuery, ratingMPARowMapper);
     }
 }

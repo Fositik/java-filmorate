@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +23,7 @@ import java.util.Set;
 @Repository
 @Qualifier("UserDbStorage")
 @RequiredArgsConstructor  //генерирует конструктор для всех полей класса, помеченных final или @NonNull
+@Slf4j
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -36,7 +38,7 @@ public class UserDbStorage implements UserStorage {
     };
 
     @Override
-    public User createUser(User newUser) throws ValidationException, CreateUserException {
+    public User createUser(User newUser) {
         try {
             // Выполняем SQL-запрос для создания нового пользователя
             String sql = "INSERT INTO users (user_id, email, user_name, login, birthday) VALUES (DEFAULT, ?, ?, ?, ?)";
@@ -53,10 +55,11 @@ public class UserDbStorage implements UserStorage {
             }, keyHolder);
             Number key = keyHolder.getKey();
             if (key == null) {
+                log.error("Ошибка при создании пользователя {}: не удалось получить id", newUser);
                 throw new CreateUserException("Ошибка при создании пользователя: не удалось получить id");
             }
             newUser.setId(key.longValue());
-
+            log.info("User {} was created", newUser);
             // Возвращаем созданного пользователя
             return newUser;
         } catch (ValidationException e) {
@@ -73,10 +76,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(long id) throws NotFoundException {
+    public User getUserById(long id) {
         // Проверяем наличие пользователя в БД
         String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
+            log.info("Пользователь найден, id: {}", id);
             return jdbcTemplate.queryForObject(sql, userRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Пользователь не найден, id: " + id);
@@ -84,7 +88,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User updatedUser) throws ValidationException, NotFoundException {
+    public User updateUser(User updatedUser) {
         // Выполняем SQL-запрос для обновления пользователя
         String sql = "UPDATE users SET " +
                 "email = ?, " +
@@ -99,17 +103,17 @@ public class UserDbStorage implements UserStorage {
                 updatedUser.getLogin(),
                 updatedUser.getBirthday(),
                 updatedUser.getId());
-
+        log.info("Пользователь обновлен: {}", updatedUser);
         return updatedUser;
     }
 
     @Override
-    public User remove(long id) throws ValidationException, NotFoundException {
+    public User remove(long id) {
         //Выполняем SQL запрос на удаление пользователя из базы данных
         User removedUser = getUserById(id);
         String sql = "DELETE FROM users WHERE user_id = ?";
         jdbcTemplate.update(sql, id);
-
+        log.info("Пользователь удален, id: {}", id);
         //Возвращаем удаленного пользователя
         return removedUser;
     }
@@ -118,6 +122,7 @@ public class UserDbStorage implements UserStorage {
     public void addFriend(Long userId, Long friendId) {
         String sql = "INSERT INTO user_friends(friendship_id, user_id, friend_id, status) VALUES (DEFAULT, ?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
+        log.info("Пользователь id: {},добавлен в друзбя пользователю id: {}", userId, friendId);
     }
 
     @Override
@@ -126,6 +131,8 @@ public class UserDbStorage implements UserStorage {
                 "WHERE user_id = ? " +
                 "AND friend_id = ?";
         jdbcTemplate.update(sqlRemoveFriendship, userId, friendId);
+        log.info("Пользователь id: {},удален из друзей пользователя id: {}", userId, friendId);
+
     }
 
     @Override
@@ -133,6 +140,7 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT u.user_id FROM users u\n" +
                 "JOIN user_friends uf1 ON u.user_id = uf1.friend_id AND uf1.status = 'CONFIRMED' AND uf1.user_id = ?" +
                 "JOIN user_friends uf2 ON u.user_id = uf2.friend_id AND uf2.status = 'CONFIRMED' AND uf2.user_id = ?";
+        log.info("Получение общих друзей пользовтелей с id {} и {}", userId, otherId);
         return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId, otherId));
     }
 
@@ -140,6 +148,7 @@ public class UserDbStorage implements UserStorage {
     public Set<Long> getFriends(long userId) {
         String sqlGetFriends = "SELECT friend_id FROM user_friends WHERE user_id = ? AND status = 'CONFIRMED'";
         List<Long> friendIds = jdbcTemplate.queryForList(sqlGetFriends, Long.class, userId);
+        log.info("Получение списка друзей пользовтеля с id: {}", userId);
         return new HashSet<>(friendIds);
     }
 }

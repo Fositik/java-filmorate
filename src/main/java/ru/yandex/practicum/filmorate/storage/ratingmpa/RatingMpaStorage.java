@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RatingMpaStorage {
 
-    RatingMPA getRatingMpaById(int ratingId) throws NotFoundException;
+    RatingMPA getRatingMpaById(int ratingId);
 
     List<RatingMPA> getAllRatings();
 }
