@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.filmlikes;
 
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-
 public interface FilmLikeStorage {
     void addLike(long filmId, long userId, int rate);
 
