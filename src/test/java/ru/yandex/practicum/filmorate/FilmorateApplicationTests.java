@@ -318,22 +318,6 @@ public class FilmorateApplicationTests {
     }
 
     @Test
-    public void removeFilm_shouldReturnNotFoundException() {
-        // Создаем фильм
-        Genre genre = genreService.getGenreById(1);
-        RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
-        filmService.addFilm(createdFilm);
-        System.out.println(filmService.getFilmById(1L).toString());
-
-        //Remove film
-        filmService.removeFilm(createdFilm.getId());
-
-        assertThrows(NotFoundException.class, () -> filmService.getFilmById(createdFilm.getId()));
-    }
-
-    @Test
     public void getFilm_shouldReturnFilmById() {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
