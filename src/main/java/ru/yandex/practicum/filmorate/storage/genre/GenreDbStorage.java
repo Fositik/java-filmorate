@@ -25,7 +25,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Optional<Genre> getGenreById(int genreId) {
-        String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
+        String sqlQuery = GenreSQLQueries.SELECT_GENRE_BY_ID;
         try {
             //  log.info("Получение RatingMPA под id: {}", genreId);
             Genre result = jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
@@ -38,16 +38,14 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAllGenres() {
-        String sqlQuery = "SELECT * FROM genres";
+        String sqlQuery = GenreSQLQueries.SELECT_ALL_GENRES;
         log.info("Получение списка всех жанров");
         return jdbcTemplate.query(sqlQuery, genreRowMapper);
     }
 
     @Override
     public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
-        String sql = "SELECT g.* FROM genres g " +
-                "INNER JOIN film_genres fg ON g.genre_id = fg.genre_id " +
-                "WHERE fg.film_id = ?";
+        String sql = GenreSQLQueries.SELECT_GENRE_BY_FILM_ID;
         List<Genre> genres = jdbcTemplate.query(sql, (rs, rowNum) -> {
             int id = rs.getInt("genre_id");
             String name = rs.getString("genre_name");

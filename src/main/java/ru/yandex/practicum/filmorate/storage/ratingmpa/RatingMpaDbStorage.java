@@ -23,7 +23,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
     }
 
     public Optional<RatingMPA> getRatingMpaById(int ratingId) {
-        String sqlQuery = "SELECT * FROM ratings WHERE rating_id = ?";
+        String sqlQuery = RatingMpaSQLQueries.SELECT_RATING_BY_ID;
         try {
             //  log.info("Получение RatingMPA под id: {}", ratingId);
             RatingMPA result = jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
@@ -35,7 +35,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
     }
 
     public List<RatingMPA> getAllRatings() {
-        String sqlQuery = "SELECT * FROM ratings";
+        String sqlQuery = RatingMpaSQLQueries.SELECT_ALL_RATINGS;
         log.info("Получение списка всех RatingMPA");
         return jdbcTemplate.query(sqlQuery, ratingMPARowMapper);
     }

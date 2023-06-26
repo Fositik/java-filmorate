@@ -42,7 +42,7 @@ public class UserDbStorage implements UserStorage {
     public User createUser(User newUser) {
         try {
             // Выполняем SQL-запрос для создания нового пользователя
-            String sql = "INSERT INTO users (user_id, email, user_name, login, birthday) VALUES (DEFAULT, ?, ?, ?, ?)";
+            String sql = UserSQLQueries.INSERT_USER;
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -84,14 +84,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        String sql = "SELECT * FROM users";
+        String sql = UserSQLQueries.SELECT_ALL_USERS;
         return jdbcTemplate.query(sql, userRowMapper);
     }
 
     @Override
     public Optional<User> getUserById(long id) {
         // Проверяем наличие пользователя в БД
-        String sql = "SELECT * FROM users WHERE user_id = ?";
+        String sql = UserSQLQueries.SELECT_USER_BY_ID;
         try {
             log.info("Пользователь найден, id: {}", id);
             User result = jdbcTemplate.queryForObject(sql, userRowMapper, id);
@@ -106,12 +106,7 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User updatedUser) {
         userExists(updatedUser.getId());
         // Выполняем SQL-запрос для обновления пользователя
-        String sql = "UPDATE users SET " +
-                "email = ?, " +
-                "user_name = ?, " +
-                "login = ?, " +
-                "birthday = ? " +
-                "WHERE user_id = ?";
+        String sql = UserSQLQueries.UPDATE_USER;
 
         int affectedRows = jdbcTemplate.update(sql,
                 updatedUser.getEmail(),
@@ -134,7 +129,7 @@ public class UserDbStorage implements UserStorage {
     public void remove(long id) {
         // Выполняем SQL запрос на удаление пользователя из базы данных
         userExists(id);
-        String sql = "DELETE FROM users WHERE user_id = ?";
+        String sql = UserSQLQueries.DELETE_USER;
         int affectedRows = jdbcTemplate.update(sql, id);
         if (affectedRows == 0) {
             log.warn("Попытка удалить пользователя с id: {}. Пользователь не найден", id);
@@ -150,7 +145,7 @@ public class UserDbStorage implements UserStorage {
         userExists(userId);
         userExists(friendId);
 
-        String sql = "INSERT INTO user_friends(user_id, friend_id, status) VALUES (?, ?, ?)";
+        String sql = UserSQLQueries.INSERT_FRIEND;
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
         log.info("Пользователь id: {}, добавлен в друзья пользователю id: {}", userId, friendId);
     }
@@ -160,9 +155,7 @@ public class UserDbStorage implements UserStorage {
     public void removeFriend(long userId, long friendId) {
         userExists(userId);
         userExists(friendId);
-        String sqlRemoveFriendship = "DELETE FROM user_friends " +
-                "WHERE user_id = ? " +
-                "AND friend_id = ?";
+        String sqlRemoveFriendship = UserSQLQueries.DELETE_FRIEND;
         jdbcTemplate.update(sqlRemoveFriendship, userId, friendId);
         log.info("Пользователь id: {},удален из друзей пользователя id: {}", userId, friendId);
 
@@ -172,23 +165,21 @@ public class UserDbStorage implements UserStorage {
     public List<User> getCommonFriends(long userId, long otherId) {
         userExists(userId);
         userExists(otherId);
-        String sql = "SELECT u.* FROM users u\n" +
-                "JOIN user_friends uf1 ON u.user_id = uf1.friend_id AND uf1.status = 'CONFIRMED' AND uf1.user_id = ?" +
-                "JOIN user_friends uf2 ON u.user_id = uf2.friend_id AND uf2.status = 'CONFIRMED' AND uf2.user_id = ?";
+        String sql = UserSQLQueries.SELECT_COMMON_FRIENDS;
         log.info("Получение общих друзей пользовтелей с id {} и {}", userId, otherId);
         return jdbcTemplate.query(sql, new Object[]{userId, otherId}, userRowMapper);
     }
 
     @Override
     public Set<Long> getFriends(long userId) {
-        String sqlGetFriends = "SELECT friend_id FROM user_friends WHERE user_id = ? AND status = 'CONFIRMED'";
+        String sqlGetFriends = UserSQLQueries.SELECT_FRIENDS;
         List<Long> friendIds = jdbcTemplate.queryForList(sqlGetFriends, Long.class, userId);
         log.info("Получение списка друзей пользовтеля с id: {}", userId);
         return new HashSet<>(friendIds);
     }
 
     public boolean userExists(Long userId) {
-        String sql = "SELECT COUNT(*) FROM users WHERE user_id = ?";
+        String sql = UserSQLQueries.USER_EXISTS;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         if (count == null || count == 0) {
             log.warn("Пользователь с id {} не найден", userId);

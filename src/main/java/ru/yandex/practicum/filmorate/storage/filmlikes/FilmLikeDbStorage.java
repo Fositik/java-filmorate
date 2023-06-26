@@ -18,7 +18,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
     @Override
     public void addLike(long filmId, long userId, int rate) {
-        String sql = "INSERT INTO film_user_likes (film_id, user_id) VALUES (?, ?)";
+        String sql = FilmLikeSQLQueries.INSERT_LIKE;
         try {
             jdbcTemplate.update(sql, filmId, userId);
         } catch (Exception e) {
@@ -29,7 +29,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
     @Override
     public void removeLike(long filmId, long userId) {
-        String sql = "DELETE FROM film_user_likes WHERE film_id = ? AND user_id = ?";
+        String sql = FilmLikeSQLQueries.REMOVE_LIKE;
         try {
             int deletedRows = jdbcTemplate.update(sql, filmId, userId);
             if (deletedRows == 0) {
@@ -45,7 +45,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
     @Override
     public boolean isLikedByUser(long filmId, long userId) {
-        String sql = "SELECT COUNT(*) FROM film_user_likes WHERE film_id = ? AND user_id = ?";
+        String sql = FilmLikeSQLQueries.IS_LIKED_BY_USER;
         try {
             Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
             return Optional.ofNullable(count).orElse(0) > 0;
