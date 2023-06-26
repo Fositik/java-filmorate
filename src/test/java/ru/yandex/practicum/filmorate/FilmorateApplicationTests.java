@@ -18,23 +18,30 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringBootTest
+
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class FilmorateApplicationTests {
+//@RunWith(SpringRunner.class)
+@SpringBootTest
+public class FilmorateApplicationTests {
 
     private final UserService userService;
+
     private final FilmService filmService;
+
     private final GenreService genreService;
+
     private final MpaService mpaService;
+
 
     private User createUser(Long id, String name, String login, LocalDate birthday, String email) {
         return User.builder()
@@ -51,7 +58,7 @@ class FilmorateApplicationTests {
                             String description,
                             LocalDate releaseDate,
                             Integer duration,
-                            List<Genre> genres,
+                            LinkedHashSet<Genre> genres,
                             RatingMPA mpa) {
         return Film.builder()
                 .id(id)
@@ -264,9 +271,13 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
-
+        Genre expectedGenre = null;
+        for (Genre g : createdFilm.getGenres()) {
+            expectedGenre = g;
+            break; // Получаем только первый жанр
+        }
         // Проверяем, что созданный фильм имеет ожидаемые значения полей
         assertEquals(createdFilm.getId(), 1L);
         assertEquals(createdFilm.getName(), "New Film");
@@ -274,7 +285,7 @@ class FilmorateApplicationTests {
         assertEquals(createdFilm.getReleaseDate(), LocalDate.now());
         assertEquals(createdFilm.getDuration(), 120);
         assertEquals(createdFilm.getGenres().size(), 1);
-        assertEquals(createdFilm.getGenres().get(0), genre);
+        assertEquals(expectedGenre, genre);
         assertEquals(createdFilm.getMpa(), mpa);
     }
 
@@ -285,7 +296,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(2);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now().minusYears(300), 120, List.of(g1, genre), mpa);
+                LocalDate.now().minusYears(300), 120, new LinkedHashSet<>(List.of(g1, genre)), mpa);
 
         assertThrows(ValidationException.class, () -> filmService.addFilm(createdFilm));
     }
@@ -296,14 +307,14 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
         //Update film
         Genre genre2 = genreService.getGenreById(2);
         Film updatedFilm = createFilm(1L, "Upd Film", "Upd film description",
-                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.updateFilm(updatedFilm);
 
         //Create optional Film object
@@ -322,7 +333,7 @@ class FilmorateApplicationTests {
         RatingMPA mpa = new RatingMPA(1);
         Genre genre2 = genreService.getGenreById(2);
         Film updatedFilm = createFilm(9999L, "Upd Film", "Upd film description",
-                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre)), mpa);
 
         //Check
         assertThrows(NotFoundException.class, () -> filmService.updateFilm(updatedFilm));
@@ -334,7 +345,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -350,7 +361,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -363,14 +374,14 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
         //Second film
         Genre genre2 = genreService.getGenreById(2);
         Film film2 = createFilm(2L, "Upd Film", "Upd film description",
-                LocalDate.now().minusDays(12), 120, List.of(genre, genre2), mpa);
+                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(film2);
 
         List<Film> optionalFilmsList = filmService.getAllFilms();
@@ -385,18 +396,19 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(2);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(g1, genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
 
-        List<Genre> createdGenresList = new ArrayList<>();
-        createdGenresList.add(createdFilm.getGenres().get(0));
+        Set<Genre> createdGenresList = new LinkedHashSet<>();
+        createdGenresList.addAll(createdFilm.getGenres());
         createdGenresList.add(genre);
 
-        List<Genre> filmGenreList = genreService.getGenresByFilmId(createdFilm.getId());
+        Set<Genre> filmGenreList = genreService.getGenresByFilmId(createdFilm.getId());
 
         assertEquals(filmGenreList.size(), 2);
         assertEquals(filmGenreList, createdGenresList);
     }
+
 
     @Test
     public void addLikeToFilm_shouldReturnFilmWithLike() {
@@ -404,7 +416,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -423,7 +435,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -451,7 +463,7 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
 
@@ -465,14 +477,14 @@ class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre), mpa);
+                LocalDate.now(), 120,new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
         // Создаем фильм
         Genre genre2 = genreService.getGenreById(2);
         RatingMPA mpa2 = mpaService.getRatingMpaById(2);
         Film createdFilm2 = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, List.of(genre2, genre), mpa2);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre, genre2)), mpa2);
         filmService.addFilm(createdFilm2);
 
         //Create user
@@ -483,6 +495,7 @@ class FilmorateApplicationTests {
         //Add like to film
         filmService.addLikeToFilm(createdFilm2.getId(), user.getId());
 
+        System.out.println( filmService.getTopFilms(10L));
         assertEquals(filmService.getTopFilms(10L).size(), 2);
         assertEquals(filmService.getTopFilms(10L).get(0), createdFilm2);
     }

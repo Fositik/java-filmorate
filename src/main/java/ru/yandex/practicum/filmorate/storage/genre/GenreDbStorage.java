@@ -7,7 +7,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -22,14 +24,15 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Genre getGenreById(int genreId) {
+    public Optional<Genre> getGenreById(int genreId) {
         String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
         try {
-            log.info("Получение RatingMPA под id: {}", genreId);
-            return jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
+          //  log.info("Получение RatingMPA под id: {}", genreId);
+            Genre result = jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
+            return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException e) {
             log.info("Жанр под id: {} не найден", genreId);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -41,7 +44,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public List<Genre> getGenresByFilmId(Long filmId) {
+    public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
         String sql = "SELECT g.* FROM genres g " +
                 "INNER JOIN film_genres fg ON g.genre_id = fg.genre_id " +
                 "WHERE fg.film_id = ?";
@@ -51,6 +54,6 @@ public class GenreDbStorage implements GenreStorage {
             return new Genre(id, name);
         }, filmId);
         log.info("Retrieved Genres: {}", genres);
-        return genres;
+        return new LinkedHashSet<>(genres);
     }
 }

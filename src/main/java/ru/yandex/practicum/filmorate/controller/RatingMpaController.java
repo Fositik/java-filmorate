@@ -2,18 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @RequestMapping("/mpa")
 @Slf4j
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class RatingMpaController {
 
     private final MpaService mpaService;
@@ -26,11 +26,7 @@ public class RatingMpaController {
     }
 
     @GetMapping("/{id}")
-    public RatingMPA getRatingById(@PathVariable Integer id) {
-        if (id <= 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Некорректный MPA ID");
-        }
+    public RatingMPA getRatingById( @PathVariable Integer id) {
         RatingMPA rating = mpaService.getRatingMpaById(id);
         log.info("Получение MPA рейтинга с ID {}", id);
         return rating;

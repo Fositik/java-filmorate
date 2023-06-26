@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.model.validator.FilmDataValidator;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -27,6 +27,7 @@ public class Film {
     private String description;
 
     @NotNull
+    @FilmDataValidator
     private LocalDate releaseDate;
 
     @NotNull @Min(value = 1, message = "Продолжительность фильма должна быть положительной")

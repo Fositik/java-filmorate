@@ -1,28 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
 
     private final UserStorage userStorage;
 
-    public User createUser(User newUser) throws ValidationException {
-        List<User> allUsers = new ArrayList<>(getAllUsers());
-        UserValidator.validateCreate(allUsers, newUser);
-        UserValidator.validate(newUser);
+    //    public UserService(UserStorage userStorage){
+//        this.userStorage = userStorage;
+//    }
+    public User createUser(User newUser) {
         return userStorage.createUser(newUser);
     }
 
@@ -31,24 +30,15 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь с указанным " +
+                "ID не найден: " + userId));
     }
 
     public User updateUser(User updatedUser) {
-        List<Long> allUserIds = getAllUsers()
-                .stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-        UserValidator.validateUpdate(allUserIds, updatedUser);
         return userStorage.updateUser(updatedUser);
     }
 
     public void remove(Long id) {
-        List<Long> allUserIds = getAllUsers()
-                .stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-        UserValidator.validateExist(allUserIds, id);
         userStorage.remove(id);
     }
 
@@ -57,7 +47,7 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        return userStorage.getCommonFriends(userId, otherId).stream().map(this::getUserById).collect(Collectors.toList());
+        return userStorage.getCommonFriends(userId, otherId);
     }
 
     public List<User> getFriends(Long userId) {
@@ -65,12 +55,6 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        List<Long> allUserIds = getAllUsers()
-                .stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-        UserValidator.validateExist(allUserIds, userId);
-        UserValidator.validateExist(allUserIds, friendId);
         userStorage.addFriend(userId, friendId);
     }
 

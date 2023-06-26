@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserStorage {
@@ -12,17 +11,17 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    User getUserById(long id);
+    Optional<User> getUserById(long id);
 
     User updateUser(User updatedUser);
 
-    User remove(long id);
+    void remove(long id);
 
     void addFriend(Long userId, Long friendId);
 
     void removeFriend(long userId, long friendId);
 
-    Set<Long> getCommonFriends(long userId, long otherId);
+    List<User> getCommonFriends(long userId, long otherId);
 
     Set<Long> getFriends(long user);
 }

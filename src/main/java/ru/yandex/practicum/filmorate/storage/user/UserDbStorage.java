@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,13 +18,14 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
-@Qualifier("UserDbStorage")
-@RequiredArgsConstructor  //генерирует конструктор для всех полей класса, помеченных final или @NonNull
+@RequiredArgsConstructor(onConstructor_ = @Autowired) //генерирует конструктор для всех полей класса, помеченных final или @NonNull
 @Slf4j
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -45,6 +48,12 @@ public class UserDbStorage implements UserStorage {
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
+            // Проверяем и обновляем поле name, если оно пустое или null
+            if (newUser.getName() == null || newUser.getName().isEmpty() || newUser.getName().isBlank()) {
+                newUser.setName(newUser.getLogin());
+                log.info("Поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
+            }
+
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
                 stmt.setString(1, newUser.getEmail());
@@ -62,6 +71,12 @@ public class UserDbStorage implements UserStorage {
             log.info("User {} was created", newUser);
             // Возвращаем созданного пользователя
             return newUser;
+            //Так как мы избавились от класса валидации с целью повышения производительности приложения,
+            // добавим проверку уникальности на уровне базы данных
+        } catch (DataIntegrityViolationException e) {
+            log.error("Ошибка при создании пользователя {}: " +
+                    "пользователь с таким логином или email уже существует", newUser, e);
+            throw new CreateUserException("Пользователь с таким логином или email уже существует");
         } catch (ValidationException e) {
             throw e; // перебросим исключение вверх, чтобы его обработали в другом месте
         } catch (Exception e) {
@@ -76,19 +91,22 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(long id) {
+    public Optional<User> getUserById(long id) {
         // Проверяем наличие пользователя в БД
         String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
             log.info("Пользователь найден, id: {}", id);
-            return jdbcTemplate.queryForObject(sql, userRowMapper, id);
+            User result = jdbcTemplate.queryForObject(sql, userRowMapper, id);
+            return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Пользователь не найден, id: " + id);
+            log.error("пользователь с id: {} не найден", id);
+            return Optional.empty();
         }
     }
 
     @Override
     public User updateUser(User updatedUser) {
+        userExists(updatedUser.getId());
         // Выполняем SQL-запрос для обновления пользователя
         String sql = "UPDATE users SET " +
                 "email = ?, " +
@@ -97,36 +115,54 @@ public class UserDbStorage implements UserStorage {
                 "birthday = ? " +
                 "WHERE user_id = ?";
 
-        jdbcTemplate.update(sql,
+        int affectedRows = jdbcTemplate.update(sql,
                 updatedUser.getEmail(),
                 updatedUser.getName(),
                 updatedUser.getLogin(),
                 updatedUser.getBirthday(),
                 updatedUser.getId());
-        log.info("Пользователь обновлен: {}", updatedUser);
-        return updatedUser;
+
+        if (affectedRows == 0) {
+            log.warn("Попытка обновить пользователя с id: {}. Пользователь не найден", updatedUser.getId());
+            throw new NotFoundException("Пользователь с указанным ID не найден: " + updatedUser.getId());
+        } else {
+            log.info("Пользователь обновлен: {}", updatedUser);
+            return updatedUser;
+        }
     }
 
+
     @Override
-    public User remove(long id) {
-        //Выполняем SQL запрос на удаление пользователя из базы данных
-        User removedUser = getUserById(id);
+    public void remove(long id) {
+        // Выполняем SQL запрос на удаление пользователя из базы данных
+        userExists(id);
         String sql = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sql, id);
-        log.info("Пользователь удален, id: {}", id);
-        //Возвращаем удаленного пользователя
-        return removedUser;
+        int affectedRows = jdbcTemplate.update(sql, id);
+        if (affectedRows == 0) {
+            log.warn("Попытка удалить пользователя с id: {}. Пользователь не найден", id);
+            throw new NotFoundException("Пользователь с указанным ID не найден: " + id);
+        } else {
+            log.info("Пользователь удален, id: {}", id);
+        }
     }
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        String sql = "INSERT INTO user_friends(friendship_id, user_id, friend_id, status) VALUES (DEFAULT, ?, ?, ?)";
+        // Проверяем, существуют ли пользователи в базе данных
+        userExists(userId);
+        userExists(friendId);
+
+        String sql = "INSERT INTO user_friends(user_id, friend_id, status) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
-        log.info("Пользователь id: {},добавлен в друзбя пользователю id: {}", userId, friendId);
+        log.info("Пользователь id: {}, добавлен в друзья пользователю id: {}", userId, friendId);
     }
+
+
 
     @Override
     public void removeFriend(long userId, long friendId) {
+        userExists(userId);
+        userExists(friendId);
         String sqlRemoveFriendship = "DELETE FROM user_friends " +
                 "WHERE user_id = ? " +
                 "AND friend_id = ?";
@@ -136,12 +172,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Set<Long> getCommonFriends(long userId, long otherId) {
-        String sql = "SELECT u.user_id FROM users u\n" +
+    public List<User> getCommonFriends(long userId, long otherId) {
+        userExists(userId);
+        userExists(otherId);
+        String sql = "SELECT u.* FROM users u\n" +
                 "JOIN user_friends uf1 ON u.user_id = uf1.friend_id AND uf1.status = 'CONFIRMED' AND uf1.user_id = ?" +
                 "JOIN user_friends uf2 ON u.user_id = uf2.friend_id AND uf2.status = 'CONFIRMED' AND uf2.user_id = ?";
         log.info("Получение общих друзей пользовтелей с id {} и {}", userId, otherId);
-        return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, userId, otherId));
+        return jdbcTemplate.query(sql, new Object[]{userId, otherId}, userRowMapper);
     }
 
     @Override
@@ -150,6 +188,16 @@ public class UserDbStorage implements UserStorage {
         List<Long> friendIds = jdbcTemplate.queryForList(sqlGetFriends, Long.class, userId);
         log.info("Получение списка друзей пользовтеля с id: {}", userId);
         return new HashSet<>(friendIds);
+    }
+
+    public boolean userExists(Long userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE user_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        if (count == null || count == 0) {
+            log.warn("Пользователь с id {} не найден", userId);
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
+        return true;
     }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -21,14 +22,15 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
                 .getInt("rating_id"), rs.getString("rating_name"));
     }
 
-    public RatingMPA getRatingMpaById(int ratingId) {
+    public Optional<RatingMPA> getRatingMpaById(int ratingId) {
         String sqlQuery = "SELECT * FROM ratings WHERE rating_id = ?";
         try {
-            log.info("Получение RatingMPA под id: {}", ratingId);
-            return jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
+          //  log.info("Получение RatingMPA под id: {}", ratingId);
+            RatingMPA result = jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
+            return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException e) {
             log.error("No RatingMPA found for id: {}", ratingId);
-            return null;
+            return Optional.empty();
         }
     }
 
