@@ -10,6 +10,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EmailRFC2822 {
     String message() default "Некорректный адрес электронной почты. Почта не соответствует паттерну rfc2822";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

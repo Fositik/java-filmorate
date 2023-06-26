@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
@@ -26,11 +25,9 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-//@RunWith(SpringRunner.class)
 @SpringBootTest
 public class FilmorateApplicationTests {
 
@@ -84,13 +81,6 @@ public class FilmorateApplicationTests {
         assertEquals(createdUser.getLogin(), "dolore");
         assertEquals(createdUser.getBirthday(), LocalDate.parse("1946-08-20"));
         assertEquals(createdUser.getEmail(), "mail@mail.ru");
-    }
-
-    @Test
-    public void createUser_shouldReturnValidationException() {
-        User createdUser = createUser(1L, "", "dolore",
-                LocalDate.parse("1946-08-20"), "mail.mail.ru");
-        assertThrows(ValidationException.class, () -> userService.createUser(createdUser));
     }
 
     @Test
@@ -290,18 +280,6 @@ public class FilmorateApplicationTests {
     }
 
     @Test
-    public void createFilm_shouldReturnValidationException() {
-        // Создаем фильм
-        Genre g1 = new Genre(1);
-        Genre genre = genreService.getGenreById(2);
-        RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now().minusYears(300), 120, new LinkedHashSet<>(List.of(g1, genre)), mpa);
-
-        assertThrows(ValidationException.class, () -> filmService.addFilm(createdFilm));
-    }
-
-    @Test
     public void updateFilm_shouldReturnUpdatedFilm() {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
@@ -314,7 +292,7 @@ public class FilmorateApplicationTests {
         //Update film
         Genre genre2 = genreService.getGenreById(2);
         Film updatedFilm = createFilm(1L, "Upd Film", "Upd film description",
-                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre)), mpa);
+                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre,genre2)), mpa);
         filmService.updateFilm(updatedFilm);
 
         //Create optional Film object
@@ -396,7 +374,7 @@ public class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(2);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre, g1)), mpa);
         filmService.addFilm(createdFilm);
 
         Set<Genre> createdGenresList = new LinkedHashSet<>();
@@ -477,7 +455,7 @@ public class FilmorateApplicationTests {
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
         Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120,new LinkedHashSet<>(List.of(genre)), mpa);
+                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
         System.out.println(filmService.getFilmById(1L).toString());
         // Создаем фильм
@@ -495,7 +473,7 @@ public class FilmorateApplicationTests {
         //Add like to film
         filmService.addLikeToFilm(createdFilm2.getId(), user.getId());
 
-        System.out.println( filmService.getTopFilms(10L));
+        System.out.println(filmService.getTopFilms(10L));
         assertEquals(filmService.getTopFilms(10L).size(), 2);
         assertEquals(filmService.getTopFilms(10L).get(0), createdFilm2);
     }

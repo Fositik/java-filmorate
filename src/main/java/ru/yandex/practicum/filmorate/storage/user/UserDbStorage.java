@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,14 +17,13 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @Repository
-@RequiredArgsConstructor(onConstructor_ = @Autowired) //генерирует конструктор для всех полей класса, помеченных final или @NonNull
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -156,7 +154,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
         log.info("Пользователь id: {}, добавлен в друзья пользователю id: {}", userId, friendId);
     }
-
 
 
     @Override

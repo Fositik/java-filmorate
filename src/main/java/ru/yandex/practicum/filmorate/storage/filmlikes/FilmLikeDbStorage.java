@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.filmlikes;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,13 +11,10 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
+@RequiredArgsConstructor
 public class FilmLikeDbStorage implements FilmLikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public FilmLikeDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public void addLike(long filmId, long userId, int rate) {

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -26,7 +25,7 @@ public class RatingMpaController {
     }
 
     @GetMapping("/{id}")
-    public RatingMPA getRatingById( @PathVariable Integer id) {
+    public RatingMPA getRatingById(@PathVariable Integer id) {
         RatingMPA rating = mpaService.getRatingMpaById(id);
         log.info("Получение MPA рейтинга с ID {}", id);
         return rating;

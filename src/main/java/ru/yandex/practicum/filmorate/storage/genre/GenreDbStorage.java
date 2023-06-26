@@ -27,7 +27,7 @@ public class GenreDbStorage implements GenreStorage {
     public Optional<Genre> getGenreById(int genreId) {
         String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
         try {
-          //  log.info("Получение RatingMPA под id: {}", genreId);
+            //  log.info("Получение RatingMPA под id: {}", genreId);
             Genre result = jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
             return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException e) {

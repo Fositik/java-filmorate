@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,13 +15,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-
 import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import javax.validation.Validator;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -31,25 +25,13 @@ import java.util.*;
 
 @Repository
 @Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final RatingMpaDbStorage ratingMpaStorage;
     private final GenreDbStorage genreStorage;
     private final UserDbStorage userStorage;
-    private final RowMapper<Film> filmRowMapper;
-
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate,
-                         RatingMpaDbStorage ratingMpaStorage,
-                         GenreDbStorage genreStorage,
-                         UserDbStorage userStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.ratingMpaStorage = ratingMpaStorage;
-        this.genreStorage = genreStorage;
-        this.userStorage = userStorage;
-        this.filmRowMapper = createRowMapper();
-    }
-
+    private final RowMapper<Film> filmRowMapper = createRowMapper();
 
     private RowMapper<Film> createRowMapper() {
         // Создаем объект RowMapper для отображения строк результата запроса в объекты Film
@@ -161,8 +143,6 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-
-
     @Override
     public List<Film> getAllFilms() {
         String sql = "SELECT * FROM films;";
@@ -180,37 +160,6 @@ public class FilmDbStorage implements FilmStorage {
         });
         return films;
     }
-//    @Override
-//    public List<Film> getAllFilms() {
-//        String sql = "SELECT f.*, g.genre_id, g.genre_name " +
-//                "FROM films f " +
-//                "LEFT JOIN film_genres fg ON f.film_id = fg.film_id " +
-//                "LEFT JOIN genres g ON fg.genre_id = g.genre_id " +
-//                "ORDER BY f.film_id ASC;";
-//
-//        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> {
-//            Film film = filmRowMapper.mapRow(rs, rowNum);
-//
-//            // Создаем LinkedHashSet для хранения жанров фильма
-//            LinkedHashSet<Genre> genres = getGenresByFilmId(film)
-//
-//            // Добавляем жанры фильма в LinkedHashSet
-//            do {
-//                int genreId = rs.getInt("genre_id");
-//                String genreName = rs.getString("genre_name");
-//                if (genreId != 0) {
-//                    genres.add(new Genre(genreId, genreName));
-//                }
-//            } while (rs.next());
-//
-//            // Устанавливаем список жанров для фильма
-//            film.setGenres(genres);
-//
-//            return film;
-//        });
-//
-//        return films;
-//    }
 
     @Override
     public void addLikeToFilm(Long filmId, Long userId) {
@@ -318,11 +267,9 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-
-
     @Override
     public void removeFilm(Long id) {
-       filmExists(id);
+        filmExists(id);
 
         try {
             // Удаляем связанные записи из таблицы film_genres
@@ -342,11 +289,13 @@ public class FilmDbStorage implements FilmStorage {
             throw new RuntimeException("Ошибка при удалении фильма с id: " + id, e);
         }
     }
+
     private LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
         LinkedHashSet<Genre> genres = genreStorage.getGenresByFilmId(filmId);
-        log.info("Получение списка жанров для фильма id: {}",filmId);
+        log.info("Получение списка жанров для фильма id: {}", filmId);
         return genres;
     }
+
     private boolean filmExists(Long id) {
         String checkSql = "SELECT COUNT(*) FROM films WHERE film_id = ?";
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, id);

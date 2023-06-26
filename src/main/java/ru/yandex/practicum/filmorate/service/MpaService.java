@@ -15,10 +15,6 @@ public class MpaService {
 
     private final RatingMpaStorage ratingMpaStorage;
 
-
-    //    public MpaService (RatingMpaStorage ratingMpaStorage){
-//        this.ratingMpaStorage = ratingMpaStorage;
-//    }
     public RatingMPA getRatingMpaById(int ratingId) throws NotFoundException {
         return ratingMpaStorage.getRatingMpaById(ratingId).orElseThrow(() -> new NotFoundException("Рейтинг MPA с " +
                 "указанным ID не найден: " + ratingId));

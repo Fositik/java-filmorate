@@ -25,7 +25,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
     public Optional<RatingMPA> getRatingMpaById(int ratingId) {
         String sqlQuery = "SELECT * FROM ratings WHERE rating_id = ?";
         try {
-          //  log.info("Получение RatingMPA под id: {}", ratingId);
+            //  log.info("Получение RatingMPA под id: {}", ratingId);
             RatingMPA result = jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
             return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException e) {

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.time.LocalDate;
 import java.util.regex.Pattern;
 
 //Интерфейс ConstraintValidator принимает два типа: тип аннотации который будет поддерживаться,
