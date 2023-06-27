@@ -8,8 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 
-import java.util.Optional;
-
 @Repository
 @Slf4j
 @RequiredArgsConstructor
