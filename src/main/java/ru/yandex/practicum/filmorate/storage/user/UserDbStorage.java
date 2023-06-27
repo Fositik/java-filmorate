@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,12 +47,6 @@ public class UserDbStorage implements UserStorage {
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            // Проверяем и обновляем поле name, если оно пустое или null
-            if (newUser.getName() == null || newUser.getName().isEmpty() || newUser.getName().isBlank()) {
-                newUser.setName(newUser.getLogin());
-                log.info("Поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
-            }
-
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
                 stmt.setString(1, newUser.getEmail());
@@ -77,7 +72,7 @@ public class UserDbStorage implements UserStorage {
             throw new CreateUserException("Пользователь с таким логином или email уже существует");
         } catch (ValidationException e) {
             throw e; // перебросим исключение вверх, чтобы его обработали в другом месте
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             throw new CreateUserException("Ошибка при создании пользователя");
         }
     }
@@ -178,14 +173,13 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(friendIds);
     }
 
-    public boolean userExists(Long userId) {
+    public void userExists(Long userId) {
         String sql = UserSQLQueries.USER_EXISTS;
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         if (count == null || count == 0) {
             log.warn("Пользователь с id {} не найден", userId);
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
-        return true;
     }
 }
 

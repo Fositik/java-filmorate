@@ -2,21 +2,40 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 public class FilmSQLQueries {
     // Запросы для фильма
-    public static final String INSERT_FILM = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) VALUES(? , ? , ? , ? ,  ?)";
-    public static final String UPDATE_FILM = "UPDATE films SET film_name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE film_id = ?";
-    public static final String SELECT_FILM_BY_ID = "SELECT * FROM films WHERE film_id = ?";
-    public static final String SELECT_ALL_FILMS = "SELECT * FROM films";
-    public static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
-    public static final String FILM_EXISTS = "SELECT COUNT(*) FROM films WHERE film_id = ?";
+    public static final String INSERT_FILM = "INSERT INTO FILMS " +
+            "(FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID) " +
+            "VALUES(? , ? , ? , ? , ?)";
+    public static final String UPDATE_FILM = "UPDATE films " +
+            "SET film_name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? " +
+            "WHERE film_id = ?";
+    public static final String SELECT_FILM_BY_ID = "SELECT * " +
+            "FROM films " +
+            "WHERE film_id = ?";
+    public static final String SELECT_ALL_FILMS = "SELECT * " +
+            "FROM films";
+    public static final String DELETE_FILM = "DELETE FROM films " +
+            "WHERE film_id = ?";
+    public static final String FILM_EXISTS = "SELECT COUNT(*) " +
+            "FROM films " +
+            "WHERE film_id = ?";
 
     // Запросы для жанров
-    public static final String DELETE_FILM_GENRES = "DELETE FROM film_genres WHERE film_id = ?";
-    public static final String INSERT_FILM_GENRES = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+    public static final String DELETE_FILM_GENRES = "DELETE FROM film_genres " +
+            "WHERE film_id = ?";
+    public static final String INSERT_FILM_GENRES = "INSERT INTO FILM_GENRES " +
+            "(FILM_ID, GENRE_ID) " +
+            "VALUES (?, ?)";
 
     // Запросы для лайков
-    public static final String INSERT_FILM_USER_LIKES = "INSERT INTO film_user_likes (film_id, user_id) VALUES (?, ?)";
-    public static final String DELETE_FILM_USER_LIKES = "DELETE FROM film_user_likes WHERE film_id = ? AND user_id = ?";
-    public static final String SELECT_FILM_LIKES = "SELECT user_id FROM film_user_likes WHERE film_id = ?";
+    public static final String INSERT_FILM_USER_LIKES = "INSERT INTO film_user_likes " +
+            "(film_id, user_id) " +
+            "VALUES (?, ?)";
+    public static final String DELETE_FILM_USER_LIKES = "DELETE FROM film_user_likes " +
+            "WHERE film_id = ? " +
+            "AND user_id = ?";
+    public static final String SELECT_FILM_LIKES = "SELECT user_id " +
+            "FROM film_user_likes " +
+            "WHERE film_id = ?";
 
     // Запросы для получения топ фильмов
     public static final String SELECT_TOP_FILMS = "SELECT f.*, COUNT(l.user_id) AS likes_count " +

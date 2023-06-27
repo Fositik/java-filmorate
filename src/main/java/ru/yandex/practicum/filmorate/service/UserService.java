@@ -19,6 +19,8 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User createUser(User newUser) {
+        // Проверяем и обновляем поле name, если оно пустое или null
+        validateAndSetDefaults(newUser);
         return userStorage.createUser(newUser);
     }
 
@@ -55,5 +57,12 @@ public class UserService {
         userStorage.addFriend(userId, friendId);
     }
 
+    private User validateAndSetDefaults(User user) {
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+            log.info("Поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
+        }
+        return user;
+    }
 
 }
