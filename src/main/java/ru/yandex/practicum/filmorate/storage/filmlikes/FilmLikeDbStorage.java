@@ -41,6 +41,7 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
             throw new NotFoundException("Фильм или пользователь не найдены");
         }
     }
+
     @Override
     public boolean isLikedByUser(long filmId, long userId) {
         String sql = FilmLikeSQLQueries.IS_LIKED_BY_USER;
