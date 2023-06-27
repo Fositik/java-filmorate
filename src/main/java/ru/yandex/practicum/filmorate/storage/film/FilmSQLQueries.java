@@ -26,17 +26,6 @@ public class FilmSQLQueries {
             "(FILM_ID, GENRE_ID) " +
             "VALUES (?, ?)";
 
-    // Запросы для лайков
-    public static final String INSERT_FILM_USER_LIKES = "INSERT INTO film_user_likes " +
-            "(film_id, user_id) " +
-            "VALUES (?, ?)";
-    public static final String DELETE_FILM_USER_LIKES = "DELETE FROM film_user_likes " +
-            "WHERE film_id = ? " +
-            "AND user_id = ?";
-    public static final String SELECT_FILM_LIKES = "SELECT user_id " +
-            "FROM film_user_likes " +
-            "WHERE film_id = ?";
-
     // Запросы для получения топ фильмов
     public static final String SELECT_TOP_FILMS = "SELECT f.*, COUNT(l.user_id) AS likes_count " +
             "FROM films f " +

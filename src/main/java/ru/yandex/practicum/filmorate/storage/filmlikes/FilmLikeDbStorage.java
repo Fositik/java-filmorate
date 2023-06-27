@@ -2,55 +2,49 @@ package ru.yandex.practicum.filmorate.storage.filmlikes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 @Slf4j
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmLikeDbStorage implements FilmLikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final UserDbStorage userStorage;
+
 
     @Override
-    public void addLike(long filmId, long userId, int rate) {
-        String sql = FilmLikeSQLQueries.INSERT_LIKE;
-        try {
-            jdbcTemplate.update(sql, filmId, userId);
-        } catch (DataAccessException e) {
-            log.error("Ошибка при добавлении лайка к фильму с id: {} пользователем с id: {}", filmId, userId, e);
-            throw new NotFoundException("Фильм или пользователь не найдены");
-        }
+    public void addLikeToFilm(Long filmId, Long userId) {
+        String sql = FilmLikeSQLQueries.INSERT_FILM_USER_LIKES;
+        jdbcTemplate.update(sql, filmId, userId);
+        log.info("Добавление лайка к фильму с id: {} пользователем с id: {}", filmId, userId);
     }
 
     @Override
-    public void removeLike(long filmId, long userId) {
-        String sql = FilmLikeSQLQueries.REMOVE_LIKE;
-        try {
-            int deletedRows = jdbcTemplate.update(sql, filmId, userId);
-            if (deletedRows == 0) {
-                throw new NotFoundException(String.format(
-                        "Лайк от пользователя %d к фильму %d не найден", userId, filmId)
-                );
-            }
-        } catch (DataAccessException e) {
-            log.error("Ошибка при удалении лайка с фильма под id {} пользователем с id {}", filmId, userId, e);
-            throw new NotFoundException("Фильм или пользователь не найдены");
-        }
+    public void removeLike(Long filmId, Long userId) {
+        userStorage.userExists(userId);
+        String sql = FilmLikeSQLQueries.DELETE_FILM_USER_LIKES;
+        jdbcTemplate.update(sql, filmId, userId);
+        log.info("Удаление лайка у фильма с id: {} пользователем с id: {}", filmId, userId);
     }
 
     @Override
-    public boolean isLikedByUser(long filmId, long userId) {
-        String sql = FilmLikeSQLQueries.IS_LIKED_BY_USER;
-        try {
-            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
-            return count > 0;
-        } catch (EmptyResultDataAccessException e) {
-            log.error("Ошибка при проверке лайка к фильму под id {} пользователем с id {}", filmId, userId, e);
-            throw new NotFoundException("Фильм или пользователь не найдены");
-        }
+    public Set<Long> getFilmLikes(Long filmId) {
+        String sql = FilmLikeSQLQueries.SELECT_FILM_LIKES;
+
+        log.info("Получение лайков для фильма с ID: {}", filmId);
+        List<Long> likes = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
+        Set<Long> likesSet = new HashSet<>(likes);
+
+        log.info("Получено {} лайков для фильма с ID: {}", likesSet.size(), filmId);
+        return likesSet;
     }
+
 }

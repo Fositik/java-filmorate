@@ -18,7 +18,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.ratingmpa.RatingMpaDbStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+
 
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final RatingMpaDbStorage ratingMpaStorage;
     private final GenreDbStorage genreStorage;
-    private final UserDbStorage userStorage;
+
     private final RowMapper<Film> filmRowMapper = createRowMapper();
 
     private RowMapper<Film> createRowMapper() {
@@ -141,32 +141,11 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    @Override
-    public void addLikeToFilm(Long filmId, Long userId) {
-        String sql = FilmSQLQueries.INSERT_FILM_USER_LIKES;
-        jdbcTemplate.update(sql, filmId, userId);
-        log.info("Добавление лайка к фильму с id: {} пользователем с id: {}", filmId, userId);
-    }
 
-    @Override
-    public void removeLike(Long filmId, Long userId) {
-        userStorage.userExists(userId);
-        String sql = FilmSQLQueries.DELETE_FILM_USER_LIKES;
-        jdbcTemplate.update(sql, filmId, userId);
-        log.info("Удаление лайка у фильма с id: {} пользователем с id: {}", filmId, userId);
-    }
 
-    @Override
-    public Set<Long> getFilmLikes(Long filmId) {
-        String sql = FilmSQLQueries.SELECT_FILM_LIKES;
 
-        log.info("Получение лайков для фильма с ID: {}", filmId);
-        List<Long> likes = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
-        Set<Long> likesSet = new HashSet<>(likes);
 
-        log.info("Получено {} лайков для фильма с ID: {}", likesSet.size(), filmId);
-        return likesSet;
-    }
+
 
     @Override
     public List<Film> getTopFilms(Long count) {

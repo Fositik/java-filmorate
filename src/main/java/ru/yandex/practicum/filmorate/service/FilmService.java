@@ -36,26 +36,8 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public Set<Long> getFilmLikes(Long filmId) {
-        validateFilmId(filmId);
-        return filmStorage.getFilmLikes(filmId);
-    }
-
     public List<Film> getTopFilms(Long count) {
         return filmStorage.getTopFilms(count);
-    }
-
-
-    public void addLikeToFilm(Long filmId, Long userId) {
-        validateFilmId(filmId);
-        userService.validateUserId(userId);
-        filmStorage.addLikeToFilm(filmId, userId);
-    }
-
-    public void removeLike(Long filmId, Long userId) {
-        validateFilmId(filmId);
-        userService.validateUserId(userId);
-        filmStorage.removeLike(filmId, userId);
     }
 
     public void removeFilm(Long id) {
@@ -63,7 +45,7 @@ public class FilmService {
         filmStorage.removeFilm(id);
     }
 
-    private void validateFilmId(long filmId) {
+    public void validateFilmId(long filmId) {
         if (filmId <= 0 || !filmStorage.filmExists(filmId)) {
             log.error("Фильм с id {} не найден", filmId);
             throw new NotFoundException("Film with id " + filmId + " not found");

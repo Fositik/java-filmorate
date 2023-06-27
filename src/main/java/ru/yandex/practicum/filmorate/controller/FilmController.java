@@ -53,22 +53,6 @@ public class FilmController {
         return filmService.getFilmById(id);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void addLikeToFilm(@Positive @PathVariable(name = "id") long id,
-                              @Positive @PathVariable(name = "userId") long userId) {
-        log.info("Добавление лайка к фильму под id: {} от пользователя с id: {}", id, userId);
-
-        filmService.addLikeToFilm(id, userId);
-    }
-
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable(name = "id") long id,
-                           @PathVariable(name = "userId") long userId) {
-        log.info("Удаление лайка с фильма под id: {} от пользователя с id: {}", id, userId);
-
-        filmService.removeLike(id, userId);
-    }
-
     @GetMapping("/popular")
     public List<Film> getTopFilms(@RequestParam(defaultValue = "10") @Positive(message = "Количество фильмов " +
             "должно быть положительным") Long count) {

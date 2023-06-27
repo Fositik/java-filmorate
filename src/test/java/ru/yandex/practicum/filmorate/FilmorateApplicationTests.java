@@ -36,6 +36,7 @@ public class FilmorateApplicationTests {
     private final MpaService mpaService;
 
     private final FriendService friendService;
+    private final FilmLikeService filmLikeService;
 
     private User createUser(Long id, String name, String login, LocalDate birthday, String email) {
         return User.builder()
@@ -365,9 +366,9 @@ public class FilmorateApplicationTests {
                 LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
 
-        filmService.addLikeToFilm(createdFilm.getId(), user.getId());
+        filmLikeService.addLikeToFilm(createdFilm.getId(), user.getId());
 
-        assertEquals(filmService.getFilmLikes(createdFilm.getId()).size(), 1);
+        assertEquals(filmLikeService.getFilmLikes(createdFilm.getId()).size(), 1);
     }
 
     @Test
@@ -386,16 +387,16 @@ public class FilmorateApplicationTests {
         userService.createUser(user);
 
         //Add like to film
-        filmService.addLikeToFilm(createdFilm.getId(), user.getId());
+        filmLikeService.addLikeToFilm(createdFilm.getId(), user.getId());
 
         //Проверка
-        assertEquals(filmService.getFilmLikes(createdFilm.getId()).size(), 1);
+        assertEquals(filmLikeService.getFilmLikes(createdFilm.getId()).size(), 1);
 
         //Remove like by user
-        filmService.removeLike(createdFilm.getId(), user.getId());
+        filmLikeService.removeLike(createdFilm.getId(), user.getId());
 
         //Check
-        assertEquals(filmService.getFilmLikes(createdFilm.getId()).size(), 0);
+        assertEquals(filmLikeService.getFilmLikes(createdFilm.getId()).size(), 0);
     }
 
     @Test
@@ -434,7 +435,7 @@ public class FilmorateApplicationTests {
         userService.createUser(user);
 
         //Add like to film
-        filmService.addLikeToFilm(createdFilm2.getId(), user.getId());
+        filmLikeService.addLikeToFilm(createdFilm2.getId(), user.getId());
 
         System.out.println(filmService.getTopFilms(10L));
         assertEquals(filmService.getTopFilms(10L).size(), 2);
