@@ -80,6 +80,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    //Update film
     public Film updateFilm(Film film) {
         String sql = FilmSQLQueries.UPDATE_FILM;
 
