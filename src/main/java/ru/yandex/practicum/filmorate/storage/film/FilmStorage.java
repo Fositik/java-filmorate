@@ -25,5 +25,5 @@ public interface FilmStorage {
 
     void removeFilm(Long id);
 
-    boolean filmExists (long filmId);
+    boolean filmExists(long filmId);
 }

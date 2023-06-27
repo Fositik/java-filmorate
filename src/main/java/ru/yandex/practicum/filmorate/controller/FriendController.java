@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FriendService;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
@@ -16,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FriendController {
     private final FriendService friendService;
+
     @PutMapping("/{friendId}")
     public void addFriend(@PathVariable(name = "id") Long id,
                           @PathVariable(name = "friendId") Long friendId) {
