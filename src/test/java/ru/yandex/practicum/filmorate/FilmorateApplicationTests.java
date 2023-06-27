@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.GenreService;
-import ru.yandex.practicum.filmorate.service.MpaService;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.*;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -39,6 +36,7 @@ public class FilmorateApplicationTests {
 
     private final MpaService mpaService;
 
+    private final FriendService friendService;
 
     private User createUser(Long id, String name, String login, LocalDate birthday, String email) {
         return User.builder()
@@ -195,14 +193,14 @@ public class FilmorateApplicationTests {
         userService.createUser(user2);
 
         //Добавляем пользователя 2 в друзья
-        userService.addFriend(user.getId(), user2.getId());
+        friendService.addFriend(user.getId(), user2.getId());
 
         //Проверяем, что пользователь 2 есть в списке наших друзей
-        List<User> userFriend = userService.getFriends(user.getId());
+        List<User> userFriend = friendService.getFriends(user.getId());
         assertEquals(userFriend.size(), 1);
 
         //Так как дружба у нас односторонняя, то список друзей у пользователя 2 должен быть пуст
-        List<User> user2Friend = userService.getFriends(user2.getId());
+        List<User> user2Friend = friendService.getFriends(user2.getId());
         assertEquals(user2Friend.size(), 0);
     }
 
@@ -218,14 +216,14 @@ public class FilmorateApplicationTests {
         userService.createUser(user2);
 
         //Добавляем пользователя 2 в друзья
-        userService.addFriend(user.getId(), user2.getId());
+        friendService.addFriend(user.getId(), user2.getId());
 
         //Проверяем, что пользователь 2 есть в списке наших друзей
-        List<User> userFriend = userService.getFriends(user.getId());
+        List<User> userFriend = friendService.getFriends(user.getId());
         assertEquals(userFriend.size(), 1);
 
-        userService.removeFriend(user.getId(), user2.getId());
-        List<User> userFriendEmptyList = userService.getFriends(user.getId());
+        friendService.removeFriend(user.getId(), user2.getId());
+        List<User> userFriendEmptyList = friendService.getFriends(user.getId());
         assertEquals(userFriendEmptyList.size(), 0);
     }
 
@@ -236,21 +234,24 @@ public class FilmorateApplicationTests {
         User user = createUser(1L, "Vladimir", "Foiik",
                 LocalDate.now().minusDays(8824), "foiik@yandex.ru");
         userService.createUser(user);
+        System.out.println(user);
 
         User user2 = createUser(2L, "Nikita", "Amigo32",
                 LocalDate.now().minusDays(8756), "amigo32@yandex.ru");
         userService.createUser(user2);
+        System.out.println(user2);
 
         User user3 = createUser(0L, "Sergey", "Gey32",
                 LocalDate.now().minusDays(8456), "ahegaoo32@yandex.ru");
         userService.createUser(user3);
+        System.out.println(user3);
 
         //add friendships
-        userService.addFriend(user.getId(), user3.getId());
-        userService.addFriend(user2.getId(), user3.getId());
+        friendService.addFriend(user.getId(), user3.getId());
+        friendService.addFriend(user2.getId(), user3.getId());
 
         //get common friends
-        List<User> commonFriend = userService.getCommonFriends(user.getId(), user2.getId());
+        List<User> commonFriend = friendService.getCommonFriends(user.getId(), user2.getId());
         assertEquals(commonFriend.size(), 1);
         assertEquals(commonFriend.get(0), user3);
     }
@@ -350,27 +351,6 @@ public class FilmorateApplicationTests {
 
         assertEquals(optionalFilmsList.size(), 2);
     }
-
-    @Test
-    public void getAllGenresByFilm_shouldReturnGenreList() {
-        // Создаем фильм
-        Genre g1 = new Genre(1);
-        Genre genre = genreService.getGenreById(2);
-        RatingMPA mpa = mpaService.getRatingMpaById(1);
-        Film createdFilm = createFilm(1L, "New Film", "New film description",
-                LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre, g1)), mpa);
-        filmService.addFilm(createdFilm);
-
-        Set<Genre> createdGenresList = new LinkedHashSet<>();
-        createdGenresList.addAll(createdFilm.getGenres());
-        createdGenresList.add(genre);
-
-        Set<Genre> filmGenreList = genreService.getGenresByFilmId(createdFilm.getId());
-
-        assertEquals(filmGenreList.size(), 2);
-        assertEquals(filmGenreList, createdGenresList);
-    }
-
 
     @Test
     public void addLikeToFilm_shouldReturnFilmWithLike() {

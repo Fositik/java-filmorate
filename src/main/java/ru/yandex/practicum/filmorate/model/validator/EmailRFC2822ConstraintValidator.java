@@ -21,7 +21,7 @@ public class EmailRFC2822ConstraintValidator implements ConstraintValidator<Emai
     @Override
     // Значение поля передается в качестве первого аргумента
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        // Если дата равна null, она считается valid,
+        // Если email раевн null, он считается valid,
         // поскольку у нас есть другие аннотации для проверки на null.
         if (email == null) {
             return true;

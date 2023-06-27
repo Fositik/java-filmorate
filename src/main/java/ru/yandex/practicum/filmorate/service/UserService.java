@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,7 +18,6 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User createUser(User newUser) {
-        // Проверяем и обновляем поле name, если оно пустое или null
         validateAndSetDefaults(newUser);
         return userStorage.createUser(newUser);
     }
@@ -34,35 +32,28 @@ public class UserService {
     }
 
     public User updateUser(User updatedUser) {
+        validateUserId(updatedUser.getId());
+        validateAndSetDefaults(updatedUser);
         return userStorage.updateUser(updatedUser);
     }
 
     public void remove(Long id) {
+        validateUserId(id);
         userStorage.remove(id);
     }
 
-    public void removeFriend(Long userId, Long friendId) {
-        userStorage.removeFriend(userId, friendId);
-    }
-
-    public List<User> getCommonFriends(Long userId, Long otherId) {
-        return userStorage.getCommonFriends(userId, otherId);
-    }
-
-    public List<User> getFriends(Long userId) {
-        return userStorage.getFriends(userId).stream().map(this::getUserById).collect(Collectors.toList());
-    }
-
-    public void addFriend(Long userId, Long friendId) {
-        userStorage.addFriend(userId, friendId);
-    }
-
     private User validateAndSetDefaults(User user) {
-        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.info("Поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
         }
         return user;
     }
 
+    public void validateUserId(long userId) {
+        if (userId <= 0 || !userStorage.userExists(userId)) {
+            log.warn("Пользователь с id {} не найден", userId);
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
+    }
 }

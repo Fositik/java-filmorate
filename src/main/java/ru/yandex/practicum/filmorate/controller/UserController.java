@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/users")
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-
 public class UserController {
 
     private final UserService userService;
@@ -44,31 +43,4 @@ public class UserController {
         log.info("Получение пользователя с id={}", id);
         return userService.getUserById(id);
     }
-
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable(name = "id") Long id,
-                          @PathVariable(name = "friendId") Long friendId) {
-        log.info("Добавление пользователем с id={} в друзья: пользователя с id={}", id, friendId);
-        userService.addFriend(id, friendId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable(name = "id") long id,
-                             @PathVariable(name = "friendId") long friendId) {
-        log.info("Удаление пользователем с id={} из друзей: пользователя с id={}", id, friendId);
-        userService.removeFriend(id, friendId);
-    }
-
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable(name = "id") long id,
-                                       @PathVariable(name = "otherId") long otherId) {
-        return userService.getCommonFriends(id, otherId);
-    }
-
-    @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable(name = "id") long id) {
-        return userService.getFriends(id);
-    }
-
-
 }

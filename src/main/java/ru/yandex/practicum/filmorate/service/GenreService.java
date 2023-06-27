@@ -25,12 +25,6 @@ public class GenreService {
         return genreStorage.getAllGenres();
     }
 
-    private void validateGenreId(int genreId) {
-        if (genreId <= 0 || genreId > getAllGenres().size()) {
-            throw new NotFoundException("Invalid genre ID: " + genreId);
-        }
-    }
-
     public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
         return genreStorage.getGenresByFilmId(filmId);
     }

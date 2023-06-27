@@ -41,6 +41,7 @@ public class ErrorHandler {
     // которое мы задали аннотациями над полями объекта или над параметрами методов
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.error(HttpStatus.BAD_REQUEST.toString(),ex);
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

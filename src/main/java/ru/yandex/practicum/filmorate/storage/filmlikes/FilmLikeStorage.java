@@ -5,5 +5,5 @@ public interface FilmLikeStorage {
 
     void removeLike(long filmId, long userId);
 
-    public boolean isLikedByUser(long filmId, long userId);
+    boolean isLikedByUser(long filmId, long userId);
 }

@@ -24,4 +24,6 @@ public interface FilmStorage {
     List<Film> getTopFilms(Long count);
 
     void removeFilm(Long id);
+
+    boolean filmExists (long filmId);
 }
