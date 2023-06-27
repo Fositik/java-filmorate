@@ -114,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new RuntimeException("Ошибка при удалении фильма с id: " + id, e);
         }
     }
-    
+
     @Override
     public Optional<Film> getFilmById(Long id) {
         log.info("Получение фильма по ID: {}", id);
