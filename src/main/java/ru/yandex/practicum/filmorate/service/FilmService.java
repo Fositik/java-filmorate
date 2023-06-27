@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 
@@ -16,7 +15,7 @@ import java.util.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmService {
     private final FilmStorage filmStorage;
-    private  final UserService userService;
+    private final UserService userService;
 
     public Film addFilm(Film film) {
         return filmStorage.addFilm(film);
