@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.service.*;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
