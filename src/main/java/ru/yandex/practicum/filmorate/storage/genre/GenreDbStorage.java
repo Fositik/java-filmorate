@@ -56,6 +56,7 @@ public class GenreDbStorage implements GenreStorage {
         return new LinkedHashSet<>(genres);
     }
 
+    @Override
     public Map<Long, LinkedHashSet<Genre>> getGenresByFilmIds(List<Long> filmIds) {
         // Если список filmIds пуст или равен null, возвращаем пустую мапу
         // Это сделано для предотвращения выполнения ненужного запроса к базе данных

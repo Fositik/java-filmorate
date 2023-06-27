@@ -103,6 +103,17 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void removeFilm(Long id) {
+        try {
+            String deleteFilmSql = FilmSQLQueries.DELETE_FILM;
+            jdbcTemplate.update(deleteFilmSql, id);
+            log.info("Удаление фильма с id: {}", id);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Произошла ошибка при удалении фильма с id: {}", id, e);
+            throw new RuntimeException("Ошибка при удалении фильма с id: " + id, e);
+        }
+    }
+    @Override
     public Optional<Film> getFilmById(Long id) {
         log.info("Получение фильма по ID: {}", id);
         String sql = FilmSQLQueries.SELECT_FILM_BY_ID;
@@ -125,17 +136,8 @@ public class FilmDbStorage implements FilmStorage {
         String sql = FilmSQLQueries.SELECT_ALL_FILMS;
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper);
         //Далее извлекаем все id-ки и сохраняем их в список
-        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
-        //Писпользуя список id-шек, выполняем SQL запрос в методе getGenresByFilmIds(filmIds),
-        //чтобы прлучить все жанры, связанные с этими фильмами.
-        //ключом будет - идентификатор фильма, а значение - коллекция жанров)
-        Map<Long, LinkedHashSet<Genre>> genresByFilmId = genreStorage.getGenresByFilmIds(filmIds);
-        //Перебираем все полученные фильмы, используя нашу мапу,
-        //устанавливаем жанры для фильмов
-        films.forEach(film -> {
-            LinkedHashSet<Genre> genres = genresByFilmId.getOrDefault(film.getId(), new LinkedHashSet<>());
-            film.setGenres(genres);
-        });
+        addGenresToFilms(films);
+        log.info("Получение списка всех фильмов");
         return films;
     }
 
@@ -173,15 +175,26 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Получение списка популярных фильмов (количество: {})", count);
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper, count);
 
+        addGenresToFilms(films);
+
+        log.info("Получено {} популярных фильмов", films.size());
+        return films;
+    }
+
+    @Override
+    public boolean filmExists(long filmId) {
+        String checkSql = FilmSQLQueries.FILM_EXISTS;
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, filmId);
+        return count != null && count > 0;
+    }
+
+    private void addGenresToFilms(List<Film> films) {
         List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, LinkedHashSet<Genre>> genresByFilmId = genreStorage.getGenresByFilmIds(filmIds);
         films.forEach(film -> {
             LinkedHashSet<Genre> genres = genresByFilmId.getOrDefault(film.getId(), new LinkedHashSet<>());
             film.setGenres(genres);
         });
-
-        log.info("Получено {} популярных фильмов", films.size());
-        return films;
     }
 
     private void saveGenres(Film film) {
@@ -201,25 +214,6 @@ public class FilmDbStorage implements FilmStorage {
 
             jdbcTemplate.batchUpdate(insertSql, batchArgs);
         }
-    }
-
-    @Override
-    public void removeFilm(Long id) {
-        try {
-            String deleteFilmSql = FilmSQLQueries.DELETE_FILM;
-            jdbcTemplate.update(deleteFilmSql, id);
-            log.info("Удаление фильма с id: {}", id);
-        } catch (DataIntegrityViolationException e) {
-            log.error("Произошла ошибка при удалении фильма с id: {}", id, e);
-            throw new RuntimeException("Ошибка при удалении фильма с id: " + id, e);
-        }
-    }
-
-    @Override
-    public boolean filmExists(long filmId) {
-        String checkSql = FilmSQLQueries.FILM_EXISTS;
-        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, filmId);
-        return count != null && count > 0;
     }
 }
 
