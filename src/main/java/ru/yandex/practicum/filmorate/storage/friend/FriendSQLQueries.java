@@ -17,8 +17,4 @@ public class FriendSQLQueries {
             "ON u.user_id = uf2.friend_id " +
             "AND uf2.status = 'CONFIRMED' " +
             "AND uf2.user_id = ?";
-    public static final String SELECT_FRIENDS = "SELECT friend_id " +
-            "FROM user_friends " +
-            "WHERE user_id = ? " +
-            "AND status = 'CONFIRMED'";
 }

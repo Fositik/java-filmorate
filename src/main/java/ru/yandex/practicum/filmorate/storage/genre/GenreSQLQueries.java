@@ -12,12 +12,6 @@ public class GenreSQLQueries {
             "ON g.genre_id = fg.genre_id " +
             "WHERE fg.film_id = ?";
 
-//    public static final String SELECT_GENRES_IN_FILM = "select * " +
-//            "from GENRES g " +
-//            "join film_genres fg on fg.GENRE_ID = g.GENRE_ID " +
-//            "where fg.FILM_ID " +
-//            "in ";
-
     public static final String DELETE_FILM_GENRES = "DELETE FROM film_genres " +
             "WHERE film_id = ?";
     public static final String INSERT_FILM_GENRES = "INSERT INTO FILM_GENRES " +
