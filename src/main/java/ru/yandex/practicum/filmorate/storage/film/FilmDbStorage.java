@@ -20,7 +20,7 @@ import java.util.*;
 @Repository
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmRowMapper = createRowMapper();
 
