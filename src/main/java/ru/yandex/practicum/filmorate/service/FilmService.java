@@ -15,7 +15,6 @@ import java.util.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
 
     public Film addFilm(Film film) {
         return filmStorage.addFilm(film);

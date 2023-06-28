@@ -34,7 +34,7 @@ public class Film {
     // Аннотация @Min указывает минимальное значение для числового поля
     private Integer duration;
 
-    private LinkedHashSet<Genre> genres;
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
 
     @NotNull
     private RatingMPA mpa;

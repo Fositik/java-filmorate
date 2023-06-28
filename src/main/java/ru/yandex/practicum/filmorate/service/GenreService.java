@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -27,5 +28,13 @@ public class GenreService {
 
     public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
         return genreStorage.getGenresByFilmId(filmId);
+    }
+
+    public void load(List<Film> films) {
+        genreStorage.load(films);
+    }
+
+    public void saveGenres(Film film) {
+        genreStorage.saveGenres(film);
     }
 }

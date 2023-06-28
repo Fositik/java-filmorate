@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,10 +43,13 @@ public class FriendDbStorage implements FriendStorage {
     }
 
     @Override
-    public Set<Long> getFriends(long userId) {
-        String sqlGetFriends = FriendSQLQueries.SELECT_FRIENDS;
-        List<Long> friendIds = jdbcTemplate.queryForList(sqlGetFriends, Long.class, userId);
-        log.info("Получение списка друзей пользовтеля с id: {}", userId);
-        return new HashSet<>(friendIds);
+    public List<User> getFriends(long userId) {
+        String sqlGetFriends = "SELECT u.* " +
+                "FROM user_friends uf " +
+                "JOIN users u ON uf.friend_id = u.user_id " +
+                "WHERE uf.user_id = ? AND uf.status = 'CONFIRMED'";
+        List<User> friends = jdbcTemplate.query(sqlGetFriends, new Object[]{userId}, userRowMapper);
+        log.info("Получение списка друзей пользователя с id: {}", userId);
+        return friends;
     }
 }

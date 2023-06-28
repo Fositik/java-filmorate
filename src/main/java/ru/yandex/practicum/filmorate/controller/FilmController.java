@@ -17,7 +17,6 @@ import java.util.List;
 @Slf4j
 @Validated
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-
 public class FilmController {
 
     private final FilmService filmService;

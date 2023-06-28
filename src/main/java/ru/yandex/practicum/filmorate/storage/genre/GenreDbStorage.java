@@ -6,21 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<Genre> genreRowMapper = genreRowMapper();
 
-    private RowMapper<Genre> genreRowMapper() {
+    private final RowMapper<Genre> genreRowMapper = createRowMapper();
+
+    private RowMapper<Genre> createRowMapper() {
         return (rs, rowNum) -> {
             Genre genre = new Genre();
             genre.setId(rs.getInt("genre_id"));
@@ -56,50 +59,48 @@ public class GenreDbStorage implements GenreStorage {
         return new LinkedHashSet<>(genres);
     }
 
-    @Override
-    public Map<Long, LinkedHashSet<Genre>> getGenresByFilmIds(List<Long> filmIds) {
-        // Если список filmIds пуст или равен null, возвращаем пустую мапу
-        // Это сделано для предотвращения выполнения ненужного запроса к базе данных
-        if (filmIds == null || filmIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
 
-        // Создаем мапу для хранения результата
-        // Ключом будет идентификатор фильма, значением - набор жанров этого фильма
-        Map<Long, LinkedHashSet<Genre>> genresByFilmId = new HashMap<>();
+    public void load(List<Film> films) {
+        log.info("Переданный в метод список films: {}", films);
+        final Map<Long, Film> filmById = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
+        List<Long> filmIds = new ArrayList<>(filmById.keySet());
 
-        // SQL-запрос для получения жанров по списку идентификаторов фильмов
-        // IN (:filmIds) позволяет указать динамический список идентификаторов
-        String sql = GenreSQLQueries.SELECT_GENRES_IN_FILM;
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        final String sqlQuery =  "select * from GENRES g, film_genres fg where fg.GENRE_ID = g.GENRE_ID AND fg.FILM_ID in (" + inSql + ")";
 
-        // Создаем MapSqlParameterSource и добавляем в него параметр "filmIds"
-        // Он будет использован для замены маркера :filmIds в SQL-запросе
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("filmIds", filmIds);
+        jdbcTemplate.query(sqlQuery, (rs, rowNum) -> {
+            final Film film = filmById.get(rs.getLong("FILM_ID"));
+            if (film != null) {
+                if (film.getGenres() == null) {
+                    film.setGenres(new LinkedHashSet<>());
+                }
+                film.getGenres().add(genreRowMapper.mapRow(rs, rowNum));
+            } else {
+                log.warn("Фильм с id {} не найден в filmById", rs.getLong("FILM_ID"));
+            }
+            return null;
+        }, filmIds.toArray());
+    }
 
-        // Создаем NamedParameterJdbcTemplate, который позволяет работать с именованными параметрами
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
+    public void saveGenres(Film film) {
+        long filmId = film.getId();
 
-        // Выполняем запрос, который будет обрабатывать каждую строчку результата
-        namedParameterJdbcTemplate.query(sql, parameters, (rs, rowNum) -> {
-            // Получаем идентификатор фильма и жанр из текущей строки
-            Long filmId = rs.getLong("film_id");
-            Genre genre = genreRowMapper().mapRow(rs, rowNum);
+        String deleteSql = GenreSQLQueries.DELETE_FILM_GENRES;
+        jdbcTemplate.update(deleteSql, filmId);
 
-            // Если мапа еще не содержит такого ключа (film_id),
-            // то добавляем его с пустым списком жанров
-            if (!genresByFilmId.containsKey(filmId)) {
-                genresByFilmId.put(filmId, new LinkedHashSet<>());
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            String insertSql = GenreSQLQueries.INSERT_FILM_GENRES;
+            List<Object[]> batchArgs = new ArrayList<>();
+
+            for (Genre genre : film.getGenres()) {
+                log.info("genre {}", genre);
+                Object[] params = {filmId, genre.getId()};
+                batchArgs.add(params);
             }
 
-            // Добавляем текущий жанр в список жанров фильма
-            genresByFilmId.get(filmId).add(genre);
-
-            return null;  // Ничего не возвращаем, потому что все данные сохраняются в мапе genresByFilmId
-        });
-
-        // Возвращаем полученную Мапу с жанрами для каждого фильма
-        return genresByFilmId;
+            jdbcTemplate.batchUpdate(insertSql, batchArgs);
+        }
+        log.info("film genres {}", film.getGenres());
     }
 
 }

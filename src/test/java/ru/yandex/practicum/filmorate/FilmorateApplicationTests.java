@@ -336,6 +336,7 @@ public class FilmorateApplicationTests {
         // Создаем фильм
         Genre genre = genreService.getGenreById(1);
         RatingMPA mpa = mpaService.getRatingMpaById(1);
+
         Film createdFilm = createFilm(1L, "New Film", "New film description",
                 LocalDate.now(), 120, new LinkedHashSet<>(List.of(genre)), mpa);
         filmService.addFilm(createdFilm);
@@ -344,7 +345,7 @@ public class FilmorateApplicationTests {
         //Second film
         Genre genre2 = genreService.getGenreById(2);
         Film film2 = createFilm(2L, "Upd Film", "Upd film description",
-                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre)), mpa);
+                LocalDate.now().minusDays(12), 120, new LinkedHashSet<>(List.of(genre, genre2)), mpa);
         filmService.addFilm(film2);
 
         List<Film> optionalFilmsList = filmService.getAllFilms();

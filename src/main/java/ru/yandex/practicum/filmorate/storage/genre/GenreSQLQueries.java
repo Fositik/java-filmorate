@@ -12,10 +12,16 @@ public class GenreSQLQueries {
             "ON g.genre_id = fg.genre_id " +
             "WHERE fg.film_id = ?";
 
-    public static final String SELECT_GENRES_IN_FILM = "SELECT fg.film_id, g.genre_id, g.genre_name " +
-            "FROM film_genres fg " +
-            "INNER JOIN genres g " +
-            "ON fg.genre_id = g.genre_id " +
-            "WHERE fg.film_id " +
-            "IN (:filmIds)";
+//    public static final String SELECT_GENRES_IN_FILM = "select * " +
+//            "from GENRES g " +
+//            "join film_genres fg on fg.GENRE_ID = g.GENRE_ID " +
+//            "where fg.FILM_ID " +
+//            "in ";
+
+    public static final String DELETE_FILM_GENRES = "DELETE FROM film_genres " +
+            "WHERE film_id = ?";
+    public static final String INSERT_FILM_GENRES = "INSERT INTO FILM_GENRES " +
+            "(FILM_ID, GENRE_ID) " +
+            "VALUES (?, ?)";
+
 }
