@@ -41,10 +41,7 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public List<User> getFriends(long userId) {
-        String sqlGetFriends = "SELECT u.* " +
-                "FROM user_friends uf " +
-                "JOIN users u ON uf.friend_id = u.user_id " +
-                "WHERE uf.user_id = ? AND uf.status = 'CONFIRMED'";
+        String sqlGetFriends = FriendSQLQueries.SELECT_GET_FRIENDS;
         List<User> friends = jdbcTemplate.query(sqlGetFriends, new Object[]{userId}, userRowMapper);
         log.info("Получение списка друзей пользователя с id: {}", userId);
         return friends;

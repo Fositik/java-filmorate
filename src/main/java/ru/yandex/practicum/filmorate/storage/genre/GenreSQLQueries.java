@@ -18,4 +18,8 @@ public class GenreSQLQueries {
             "(FILM_ID, GENRE_ID) " +
             "VALUES (?, ?)";
 
+    public static final String SELECT_LOAD = "select * " +
+            "from GENRES g, film_genres fg " +
+            "where fg.GENRE_ID = g.GENRE_ID " +
+            "AND fg.FILM_ID in (%s)";
 }
