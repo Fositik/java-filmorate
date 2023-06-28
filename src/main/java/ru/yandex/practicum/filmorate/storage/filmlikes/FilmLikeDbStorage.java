@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +16,6 @@ import java.util.Set;
 public class FilmLikeDbStorage implements FilmLikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserService userService;
-
 
     @Override
     public void addLikeToFilm(Long filmId, Long userId) {
@@ -29,7 +26,6 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
     @Override
     public void removeLike(Long filmId, Long userId) {
-        userService.validateUserId(userId);
         String sql = FilmLikeSQLQueries.DELETE_FILM_USER_LIKES;
         jdbcTemplate.update(sql, filmId, userId);
         log.info("Удаление лайка у фильма с id: {} пользователем с id: {}", filmId, userId);

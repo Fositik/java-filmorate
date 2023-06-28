@@ -10,12 +10,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
-import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
@@ -24,9 +20,8 @@ import java.util.*;
 @Repository
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class FilmDbStorage implements FilmStorage {
+public class FilmDbStorage implements FilmStorage{
     private final JdbcTemplate jdbcTemplate;
-    private final GenreService genreService;
     private final RowMapper<Film> filmRowMapper = createRowMapper();
 
     private RowMapper<Film> createRowMapper() {
@@ -67,8 +62,6 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
-        genreService.saveGenres(film);
-
         log.info("Фильм создан: {}", film);
         return film;
     }
@@ -85,13 +78,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
 
-        try {
-            genreService.saveGenres(film);
-        } catch (NotFoundException e) {
-            log.error("Не удалось получить жанры и рейтинг для фильма с id {}", film.getId(), e);
-            throw new FilmNotFoundException("Не удалось получить жанры и рейтинг для фильма с id " + film.getId(), e);
-        }
-        log.info("Фильм обновлен: {}", film);
 
         return film;
     }
@@ -114,9 +100,6 @@ public class FilmDbStorage implements FilmStorage {
         String sql = FilmSQLQueries.SELECT_FILM_BY_ID;
         try {
             Film film = jdbcTemplate.queryForObject(sql, filmRowMapper, id);
-            LinkedHashSet<Genre> genres = genreService.getGenresByFilmId(film.getId());
-            film.setGenres(genres); // Заполняем поле 'genres' фильма
-
             log.info("Фильм под id: {} получен", id);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException e) {
@@ -125,12 +108,10 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    @Override
     public List<Film> getAllFilms() {
-        //Извлекаем все фильмы. Только основную информацию (без жанров)
+        // Извлекаем все фильмы. Только основную информацию (без жанров)
         String sql = FilmSQLQueries.SELECT_ALL_FILMS;
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper);
-        genreService.load(films);
         log.info("Получение списка всех фильмов");
         return films;
     }
@@ -142,8 +123,6 @@ public class FilmDbStorage implements FilmStorage {
 
         log.info("Получение списка популярных фильмов (количество: {})", count);
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper, count);
-
-        genreService.load(films);
 
         log.info("Получено {} популярных фильмов", films.size());
         return films;
