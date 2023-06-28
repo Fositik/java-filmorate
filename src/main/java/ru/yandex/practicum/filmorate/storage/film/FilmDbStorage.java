@@ -69,7 +69,7 @@ public class FilmDbStorage implements FilmStorage {
 
         genreService.saveGenres(film);
 
-        log.info("фильм создан: {}", film);
+        log.info("Фильм создан: {}", film);
         return film;
     }
 
@@ -117,10 +117,10 @@ public class FilmDbStorage implements FilmStorage {
             LinkedHashSet<Genre> genres = genreService.getGenresByFilmId(film.getId());
             film.setGenres(genres); // Заполняем поле 'genres' фильма
 
-            log.error("Фильм под id: {} получен", id);
+            log.info("Фильм под id: {} получен", id);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException e) {
-            log.error("Фильм под id: {} не найден", id);
+            log.warn("Фильм под id: {} не найден", id);
             return Optional.empty();
         }
     }

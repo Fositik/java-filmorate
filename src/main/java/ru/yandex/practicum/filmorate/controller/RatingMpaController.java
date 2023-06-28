@@ -20,7 +20,7 @@ public class RatingMpaController {
     @GetMapping
     public List<RatingMPA> getAllRatings() {
         List<RatingMPA> ratings = mpaService.getAllRatings();
-        log.info("Getting all MPA ratings");
+        log.info("Получение списка всех рейтингов MPA: {}", ratings);
         return ratings;
     }
 

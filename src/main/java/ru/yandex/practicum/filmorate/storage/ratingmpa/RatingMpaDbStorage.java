@@ -28,7 +28,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
             RatingMPA result = jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
             return Optional.of(result);
         } catch (EmptyResultDataAccessException e) {
-            log.error("RatingMPA для id: {} не найден", ratingId);
+            log.warn("RatingMPA для id: {} не найден", ratingId);
             return Optional.empty();
         }
     }
