@@ -1,29 +1,25 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.util.validators.UserValidator;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
 
     private final UserStorage userStorage;
-    private final Map<Long, Set<Long>> userFriendIdsMap = new HashMap<>();
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
-    public User createUser(User newUser) throws ValidationException {
-        userStorage.createUser(newUser);
-        return newUser;
+    public User createUser(User newUser) {
+        validateAndSetDefaults(newUser);
+        return userStorage.createUser(newUser);
     }
 
     public List<User> getAllUsers() {
@@ -31,47 +27,33 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь с указанным " +
+                "ID не найден: " + userId));
     }
 
     public User updateUser(User updatedUser) {
+        validateUserId(updatedUser.getId());
+        validateAndSetDefaults(updatedUser);
         return userStorage.updateUser(updatedUser);
     }
 
-    public User remove(Long id) {
-        return userStorage.remove(id);
+    public void remove(Long id) {
+        validateUserId(id);
+        userStorage.remove(id);
     }
 
-    public void removeFriend(Long userId, Long friendId) {
-        userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).remove(friendId);
-        userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).remove(userId);
+    private User validateAndSetDefaults(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+            log.info("Поле 'name' не может быть пустым, оно будет эквивалентно полю 'login'");
+        }
+        return user;
     }
 
-    public List<User> getCommonFriends(Long userId, Long otherId) {
-        List<User> userFriends = getFriends(userId);
-        List<User> friendsOfOtherUser = getFriends(otherId);
-
-        return userFriends.stream()
-                .filter(friendsOfOtherUser::contains)
-                .collect(Collectors.toList());
-    }
-
-    public List<User> getFriends(Long userId) {
-        return userFriendIdsMap.getOrDefault(userId, new HashSet<>())
-                .stream()
-                .map(this::getUserById).filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public void addFriend(Long userId, Long friendId) {
-        List<Long> allUserIds = getAllUsers()
-                .stream()
-                .map(User::getId)
-                .collect(Collectors.toList());
-
-        UserValidator.validateExist(allUserIds, friendId);
-
-        userFriendIdsMap.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
-        userFriendIdsMap.computeIfAbsent(friendId, k -> new HashSet<>()).add(userId);
+    public void validateUserId(long userId) {
+        if (userId <= 0 || !userStorage.userExists(userId)) {
+            log.warn("Пользователь с id {} не найден", userId);
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
     }
 }

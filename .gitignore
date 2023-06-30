@@ -1,34 +1,40 @@
 HELP.md
+*.mv.db
+*.trace.db
+*.class
+*.db
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+mvn
+*.idea
+*.DS_Store
+checkstyle.xml
+api-tests.yml
+hs_err_pid*
+db/
+out/
 target/
 ###!.mvn/wrapper/maven-wrapper.jar###
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+!.mvn/wrapper/maven-wrapper.jar
 ### STS ###
 .apt_generated
 .classpath
 .factorypath
 .project
+@@ -12,23 +27,11 @@ target/
 .settings
 .springBeans
 .sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-mvnw.cmd
-mvnw
-checkstyle.xml
-lombok.config
-suppressions.xml
-.mvn
-*.class
-*.jar
-*.DS_Store
-
+@@ -32,12 +51,8 @@ suppressions.xml
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -38,6 +44,8 @@ suppressions.xml
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+@@ -41,3 +44,4 @@ build/
 
 ### VS Code ###
 .vscode/
+HELP.md
