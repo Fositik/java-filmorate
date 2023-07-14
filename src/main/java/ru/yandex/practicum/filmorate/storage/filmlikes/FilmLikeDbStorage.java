@@ -19,24 +19,21 @@ public class FilmLikeDbStorage implements FilmLikeStorage {
 
     @Override
     public void addLikeToFilm(Long filmId, Long userId) {
-        String sql = FilmLikeSQLQueries.INSERT_FILM_USER_LIKES;
-        jdbcTemplate.update(sql, filmId, userId);
+        jdbcTemplate.update(FilmLikeSQLQueries.INSERT_FILM_USER_LIKES, filmId, userId);
         log.info("Добавление лайка к фильму с id: {} пользователем с id: {}", filmId, userId);
     }
 
     @Override
     public void removeLike(Long filmId, Long userId) {
-        String sql = FilmLikeSQLQueries.DELETE_FILM_USER_LIKES;
-        jdbcTemplate.update(sql, filmId, userId);
+        jdbcTemplate.update(FilmLikeSQLQueries.DELETE_FILM_USER_LIKES, filmId, userId);
         log.info("Удаление лайка у фильма с id: {} пользователем с id: {}", filmId, userId);
     }
 
     @Override
     public Set<Long> getFilmLikes(Long filmId) {
-        String sql = FilmLikeSQLQueries.SELECT_FILM_LIKES;
-
         log.info("Получение лайков для фильма с ID: {}", filmId);
-        List<Long> likes = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
+        List<Long> likes = jdbcTemplate.query(FilmLikeSQLQueries.SELECT_FILM_LIKES,
+                (rs, rowNum) -> rs.getLong("user_id"), filmId);
         Set<Long> likesSet = new HashSet<>(likes);
 
         log.info("Получено {} лайков для фильма с ID: {}", likesSet.size(), filmId);

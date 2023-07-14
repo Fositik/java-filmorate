@@ -30,12 +30,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User createUser(User newUser) {
         try {
-            String sql = UserSQLQueries.INSERT_USER;
-
             KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(connection -> {
-                PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
+                PreparedStatement stmt = connection.prepareStatement(UserSQLQueries.INSERT_USER,
+                        new String[]{"user_id"});
                 stmt.setString(1, newUser.getEmail());
                 stmt.setString(2, newUser.getName());
                 stmt.setString(3, newUser.getLogin());
@@ -61,17 +60,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        String sql = UserSQLQueries.SELECT_ALL_USERS;
         log.info("получение списка всех пользователей");
-        return jdbcTemplate.query(sql, userRowMapper);
+        return jdbcTemplate.query(UserSQLQueries.SELECT_ALL_USERS, userRowMapper);
     }
 
     @Override
     public Optional<User> getUserById(long id) {
-        String sql = UserSQLQueries.SELECT_USER_BY_ID;
         try {
             log.info("Пользователь найден, id: {}", id);
-            User result = jdbcTemplate.queryForObject(sql, userRowMapper, id);
+            User result = jdbcTemplate.queryForObject(UserSQLQueries.SELECT_USER_BY_ID, userRowMapper, id);
             return Optional.of(result);
         } catch (EmptyResultDataAccessException e) {
             log.warn("пользователь с id: {} не найден", id);
@@ -81,9 +78,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User updatedUser) {
-        String sql = UserSQLQueries.UPDATE_USER;
-
-        int affectedRows = jdbcTemplate.update(sql,
+        int affectedRows = jdbcTemplate.update(UserSQLQueries.UPDATE_USER,
                 updatedUser.getEmail(),
                 updatedUser.getName(),
                 updatedUser.getLogin(),
@@ -102,8 +97,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void remove(long id) {
-        String sql = UserSQLQueries.DELETE_USER;
-        int affectedRows = jdbcTemplate.update(sql, id);
+        int affectedRows = jdbcTemplate.update(UserSQLQueries.DELETE_USER, id);
         if (affectedRows == 0) {
             log.warn("Попытка удалить пользователя с id: {}. Пользователь не найден", id);
             throw new NotFoundException("Пользователь с указанным ID не найден: " + id);
@@ -113,8 +107,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public boolean userExists(Long userId) {
-        String sql = UserSQLQueries.USER_EXISTS;
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        Integer count = jdbcTemplate.queryForObject(UserSQLQueries.USER_EXISTS, Integer.class, userId);
         return count != null && count > 0;
     }
 }

@@ -23,9 +23,9 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
     }
 
     public Optional<RatingMPA> getRatingMpaById(int ratingId) {
-        String sqlQuery = RatingMpaSQLQueries.SELECT_RATING_BY_ID;
         try {
-            RatingMPA result = jdbcTemplate.queryForObject(sqlQuery, ratingMPARowMapper, ratingId);
+            RatingMPA result = jdbcTemplate.queryForObject(RatingMpaSQLQueries.SELECT_RATING_BY_ID,
+                    ratingMPARowMapper, ratingId);
             return Optional.of(result);
         } catch (EmptyResultDataAccessException e) {
             log.warn("RatingMPA для id: {} не найден", ratingId);
@@ -34,8 +34,7 @@ public class RatingMpaDbStorage implements RatingMpaStorage {
     }
 
     public List<RatingMPA> getAllRatings() {
-        String sqlQuery = RatingMpaSQLQueries.SELECT_ALL_RATINGS;
         log.info("Получение списка всех RatingMPA");
-        return jdbcTemplate.query(sqlQuery, ratingMPARowMapper);
+        return jdbcTemplate.query(RatingMpaSQLQueries.SELECT_ALL_RATINGS, ratingMPARowMapper);
     }
 }

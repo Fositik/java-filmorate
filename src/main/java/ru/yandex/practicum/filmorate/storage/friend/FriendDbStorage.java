@@ -20,29 +20,26 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        String sql = FriendSQLQueries.INSERT_FRIEND;
-        jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
+        jdbcTemplate.update(FriendSQLQueries.INSERT_FRIEND, userId, friendId, "CONFIRMED");
         log.info("Пользователь id: {}, добавлен в друзья пользователю id: {}", userId, friendId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        String sqlRemoveFriendship = FriendSQLQueries.DELETE_FRIEND;
-        jdbcTemplate.update(sqlRemoveFriendship, userId, friendId);
+        jdbcTemplate.update(FriendSQLQueries.DELETE_FRIEND, userId, friendId);
         log.info("Пользователь id: {}, удален из друзей пользователя id: {}", userId, friendId);
     }
 
     @Override
     public List<User> getCommonFriends(long userId, long otherId) {
-        String sql = FriendSQLQueries.SELECT_COMMON_FRIENDS;
-        log.info("Получение общих друзей пользовтелей с id {} и {}", userId, otherId);
-        return jdbcTemplate.query(sql, new Object[]{userId, otherId}, userRowMapper);
+        log.info("Получение общих друзей пользователей с id {} и {}", userId, otherId);
+        return jdbcTemplate.query(FriendSQLQueries.SELECT_COMMON_FRIENDS, new Object[]{userId, otherId}, userRowMapper);
     }
 
     @Override
     public List<User> getFriends(long userId) {
-        String sqlGetFriends = FriendSQLQueries.SELECT_GET_FRIENDS;
-        List<User> friends = jdbcTemplate.query(sqlGetFriends, new Object[]{userId}, userRowMapper);
+        List<User> friends = jdbcTemplate.query(FriendSQLQueries.SELECT_GET_FRIENDS,
+                new Object[]{userId}, userRowMapper);
         log.info("Получение списка друзей пользователя с id: {}", userId);
         return friends;
     }

@@ -33,9 +33,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Optional<Genre> getGenreById(int genreId) {
-        String sqlQuery = GenreSQLQueries.SELECT_GENRE_BY_ID;
         try {
-            Genre result = jdbcTemplate.queryForObject(sqlQuery, genreRowMapper, genreId);
+            Genre result = jdbcTemplate.queryForObject(GenreSQLQueries.SELECT_GENRE_BY_ID, genreRowMapper, genreId);
             log.info("Жанр под id: {}", genreId);
             return Optional.of(result);
         } catch (EmptyResultDataAccessException e) {
@@ -46,15 +45,13 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAllGenres() {
-        String sqlQuery = GenreSQLQueries.SELECT_ALL_GENRES;
         log.info("Получение списка всех жанров");
-        return jdbcTemplate.query(sqlQuery, genreRowMapper);
+        return jdbcTemplate.query(GenreSQLQueries.SELECT_ALL_GENRES, genreRowMapper);
     }
 
     @Override
     public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
-        String sql = GenreSQLQueries.SELECT_GENRE_BY_FILM_ID;
-        List<Genre> genres = jdbcTemplate.query(sql, genreRowMapper, filmId);
+        List<Genre> genres = jdbcTemplate.query(GenreSQLQueries.SELECT_GENRE_BY_FILM_ID, genreRowMapper, filmId);
         log.info("Жанры для фильма под id: {}: {}", filmId, genres);
         return new LinkedHashSet<>(genres);
     }
@@ -66,9 +63,9 @@ public class GenreDbStorage implements GenreStorage {
         List<Long> filmIds = new ArrayList<>(filmById.keySet());
 
         String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
-        final String sqlQuery = String.format(GenreSQLQueries.SELECT_LOAD, inSql);
 
-        jdbcTemplate.query(sqlQuery, (rs, rowNum) -> {
+        jdbcTemplate.query(String.format(GenreSQLQueries.SELECT_LOAD, inSql), (
+                rs, rowNum) -> {
             final Film film = filmById.get(rs.getLong("FILM_ID"));
             if (film != null) {
                 film.getGenres().add(genreRowMapper.mapRow(rs, rowNum));
@@ -82,11 +79,9 @@ public class GenreDbStorage implements GenreStorage {
     public void saveGenres(Film film) {
         long filmId = film.getId();
 
-        String deleteSql = GenreSQLQueries.DELETE_FILM_GENRES;
-        jdbcTemplate.update(deleteSql, filmId);
+        jdbcTemplate.update(GenreSQLQueries.DELETE_FILM_GENRES, filmId);
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            String insertSql = GenreSQLQueries.INSERT_FILM_GENRES;
             List<Object[]> batchArgs = new ArrayList<>();
 
             for (Genre genre : film.getGenres()) {
@@ -94,7 +89,7 @@ public class GenreDbStorage implements GenreStorage {
                 batchArgs.add(params);
             }
 
-            jdbcTemplate.batchUpdate(insertSql, batchArgs);
+            jdbcTemplate.batchUpdate(GenreSQLQueries.INSERT_FILM_GENRES, batchArgs);
         }
         log.info("Жанры фильма {}", film.getGenres());
     }

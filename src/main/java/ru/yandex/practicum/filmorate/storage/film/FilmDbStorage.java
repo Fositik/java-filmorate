@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.CreateFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 
@@ -44,33 +46,32 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        String sql = FilmSQLQueries.INSERT_FILM;
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(
+                    connection -> {
+                        PreparedStatement prSt = connection.prepareStatement(
+                                FilmSQLQueries.INSERT_FILM, new String[]{"film_id"});
+                        prSt.setString(1, film.getName());
+                        prSt.setString(2, film.getDescription());
+                        prSt.setDate(3, java.sql.Date.valueOf(film.getReleaseDate()));
+                        prSt.setLong(4, film.getDuration());
+                        prSt.setLong(5, film.getMpa().getId());
+                        return prSt;
+                    }, keyHolder);
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement prSt = connection.prepareStatement(
-                            sql, new String[]{"film_id"});
-                    prSt.setString(1, film.getName());
-                    prSt.setString(2, film.getDescription());
-                    prSt.setDate(3, java.sql.Date.valueOf(film.getReleaseDate()));
-                    prSt.setLong(4, film.getDuration());
-                    prSt.setLong(5, film.getMpa().getId());
-                    return prSt;
-                }, keyHolder);
+            film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
-
-        film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-
-        log.info("Фильм создан: {}", film);
-        return film;
+            log.info("Фильм создан: {}", film);
+            return film;
+        } catch (DataAccessException e) {
+            throw new CreateFilmException("Ошибка при создании фыильма");
+        }
     }
 
     @Override
     public Film updateFilm(Film film) {
-        String sql = FilmSQLQueries.UPDATE_FILM;
-
-        jdbcTemplate.update(sql,
+        jdbcTemplate.update(FilmSQLQueries.UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
                 java.sql.Date.valueOf(film.getReleaseDate()),
@@ -85,8 +86,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void removeFilm(Long id) {
         try {
-            String deleteFilmSql = FilmSQLQueries.DELETE_FILM;
-            jdbcTemplate.update(deleteFilmSql, id);
+            jdbcTemplate.update(FilmSQLQueries.DELETE_FILM, id);
             log.info("Удаление фильма с id: {}", id);
         } catch (DataIntegrityViolationException e) {
             log.error("Произошла ошибка при удалении фильма с id: {}", id, e);
@@ -97,9 +97,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> getFilmById(Long id) {
         log.info("Получение фильма по ID: {}", id);
-        String sql = FilmSQLQueries.SELECT_FILM_BY_ID;
         try {
-            Film film = jdbcTemplate.queryForObject(sql, filmRowMapper, id);
+            Film film = jdbcTemplate.queryForObject(FilmSQLQueries.SELECT_FILM_BY_ID, filmRowMapper, id);
             log.info("Фильм под id: {} получен", id);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException e) {
@@ -110,8 +109,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getAllFilms() {
         // Извлекаем все фильмы. Только основную информацию (без жанров)
-        String sql = FilmSQLQueries.SELECT_ALL_FILMS;
-        List<Film> films = jdbcTemplate.query(sql, filmRowMapper);
+        List<Film> films = jdbcTemplate.query(FilmSQLQueries.SELECT_ALL_FILMS, filmRowMapper);
         log.info("Получение списка всех фильмов");
         return films;
     }
@@ -119,10 +117,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopFilms(Long count) {
-        String sql = FilmSQLQueries.SELECT_TOP_FILMS;
-
         log.info("Получение списка популярных фильмов (количество: {})", count);
-        List<Film> films = jdbcTemplate.query(sql, filmRowMapper, count);
+        List<Film> films = jdbcTemplate.query(FilmSQLQueries.SELECT_TOP_FILMS, filmRowMapper, count);
 
         log.info("Получено {} популярных фильмов", films.size());
         return films;
@@ -130,8 +126,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public boolean filmExists(long filmId) {
-        String checkSql = FilmSQLQueries.FILM_EXISTS;
-        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, filmId);
+        Integer count = jdbcTemplate.queryForObject(FilmSQLQueries.FILM_EXISTS, Integer.class, filmId);
         return count != null && count > 0;
     }
 }
